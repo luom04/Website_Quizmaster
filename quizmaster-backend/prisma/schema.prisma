@@ -1,0 +1,215 @@
+// ============================================================
+// Prisma Schema — QuizMaster
+// Features: Question Bank, Soft Delete, Anti-cheat
+// ============================================================
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+enum Role {
+  user
+  admin
+}
+
+enum AccessMode {
+  public
+  password_required
+}
+
+enum QuestionType {
+  single
+  multiple
+}
+
+enum AttemptStatus {
+  in_progress
+  submitted
+  timed_out
+}
+
+enum EventType {
+  tab_blur
+  tab_focus
+  copy_attempt
+  right_click
+  auto_submitted
+}
+
+// ============================================================
+// MODELS
+// ============================================================
+
+model User {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  name         String
+  avatarUrl    String?   @map("avatar_url")
+  role         Role      @default(user)
+  isActive     Boolean   @default(true) @map("is_active")
+  
+  // Soft Delete
+  deletedAt    DateTime? @map("deleted_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  quizzes      Quiz[]
+  attempts     Attempt[]
+
+  @@map("users")
+}
+
+model Category {
+  id        String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String     @unique
+  
+  // Soft Delete
+  deletedAt DateTime?  @map("deleted_at")
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  quizzes   Quiz[]
+  questions Question[]
+
+  @@map("categories")
+}
+
+model Quiz {
+  id              String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title           String
+  description     String?    @db.Text
+  categoryId      String?    @map("category_id") @db.Uuid
+  createdBy       String     @map("created_by") @db.Uuid
+
+  accessMode      AccessMode @default(public) @map("access_mode")
+  passwordHash    String?    @map("password_hash")
+  passwordPlain   String?    @map("password_plain") // Clear after 24h
+
+  startsAt        DateTime?  @map("starts_at")
+  endsAt          DateTime?  @map("ends_at")
+  durationMinutes Int        @default(30) @map("duration_minutes")
+
+  maxAttempts      Int       @default(1) @map("max_attempts")
+  showAnswer       Boolean   @default(false) @map("show_answer")
+  shuffleQuestions Boolean   @default(false) @map("shuffle_questions")
+  shuffleOptions   Boolean   @default(false) @map("shuffle_options")
+  passingScore     Int?      @map("passing_score")
+  isPublished      Boolean   @default(false) @map("is_published")
+
+  // Soft Delete
+  deletedAt       DateTime?  @map("deleted_at")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  category        Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  creator         User           @relation(fields: [createdBy], references: [id])
+  quizQuestions   QuizQuestion[]
+  attempts        Attempt[]
+
+  @@map("quizzes")
+}
+
+model Question {
+  id         String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  categoryId String?      @map("category_id") @db.Uuid
+  content    String       @db.Text
+  type       QuestionType @default(single)
+  points     Int          @default(1)
+  
+  // Soft Delete
+  deletedAt  DateTime?    @map("deleted_at")
+  createdAt  DateTime     @default(now()) @map("created_at")
+
+  category      Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  options       Option[]
+  quizQuestions QuizQuestion[]
+  answers       Answer[]
+
+  @@map("questions")
+}
+
+model QuizQuestion {
+  quizId     String @map("quiz_id") @db.Uuid
+  questionId String @map("question_id") @db.Uuid
+  orderIndex Int    @map("order_index")
+
+  quiz     Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@id([quizId, questionId])
+  @@map("quiz_questions")
+}
+
+model Option {
+  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  questionId String  @map("question_id") @db.Uuid
+  content    String  @db.Text
+  isCorrect  Boolean @default(false) @map("is_correct")
+  orderIndex Int     @map("order_index")
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answers  Answer[]
+
+  @@map("options")
+}
+
+model Attempt {
+  id               String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  quizId           String        @map("quiz_id") @db.Uuid
+  userId           String        @map("user_id") @db.Uuid
+  startedAt        DateTime      @default(now()) @map("started_at")
+  submittedAt      DateTime?     @map("submitted_at")
+  timeSpentSeconds Int?          @map("time_spent_seconds")
+  score            Int?
+  totalPoints      Int?          @map("total_points")
+  isPassed         Boolean?      @map("is_passed")
+  tabSwitchCount   Int           @default(0) @map("tab_switch_count")
+  ipAddress        String?       @map("ip_address")
+  userAgent        String?       @map("user_agent")
+  status           AttemptStatus @default(in_progress)
+  createdAt        DateTime      @default(now()) @map("created_at")
+
+  quiz    Quiz        @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers Answer[]
+  events  QuizEvent[]
+
+  @@unique([quizId, userId, status], name: "unique_active_attempt")
+  @@map("attempts")
+}
+
+model Answer {
+  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  attemptId  String  @map("attempt_id") @db.Uuid
+  questionId String  @map("question_id") @db.Uuid
+  optionId   String  @map("option_id") @db.Uuid
+  isCorrect  Boolean @map("is_correct")
+
+  attempt  Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  option   Option   @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  @@map("answers")
+}
+
+model QuizEvent {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  attemptId String    @map("attempt_id") @db.Uuid
+  eventType EventType @map("event_type")
+  metadata  Json?
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  attempt Attempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  @@map("quiz_events")
+}
