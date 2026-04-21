@@ -65,6 +65,7 @@ model User {
 
   quizzes      Quiz[]
   attempts     Attempt[]
+  refreshToken RefreshToken?
 
   @@map("users")
 }
@@ -211,4 +212,19 @@ model QuizEvent {
   attempt Attempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
 
   @@map("quiz_events")
+}
+
+model RefreshToken {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  token     String   @unique
+  
+  // Thêm @unique ở đây để 1 user_id chỉ xuất hiện 1 lần duy nhất trong bảng này
+  userId    String   @unique @map("user_id") @db.Uuid 
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("refresh_tokens")
 }
