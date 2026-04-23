@@ -1,26 +1,84 @@
-import { Injectable } from '@nestjs/common';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class CategoriesService {
-  create(createCategoryDto: CreateCategoryDto) {
-    return 'This action adds a new category';
+  constructor(private readonly prisma: PrismaService) {}
+  async create(createCategoryDto: CreateCategoryDto) {
+    const existing = await this.prisma.category.findUnique({
+      where: { name: createCategoryDto.name },
+    });
+
+    if (existing) {
+      throw new ConflictException('category name already exists');
+    }
+    return this.prisma.category.create({ data: createCategoryDto });
   }
 
-  findAll() {
-    return `This action returns all categories`;
+  async findAll() {
+    return await this.prisma.category.findMany({
+      where: { deletedAt: null },
+      include: {
+        _count: { select: { quizzes: { where: { deletedAt: null } } } },
+      },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
+  async findOne(id: string) {
+    const category = await this.prisma.category.findFirst({
+      where: { id, deletedAt: null },
+    });
+    if (!category) throw new NotFoundException('category not found');
+    return category;
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  async update(id: string, updateCategoryDto: UpdateCategoryDto) {
+    await this.findOne(id);
+    return this.prisma.category.update({
+      where: { id },
+      data: updateCategoryDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  async remove(id: string) {
+    await this.findOne(id);
+    return this.prisma.category.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
+  }
+  async removePermanent(id: string) {
+    //check xem tồn tại không
+    const category = await this.prisma.category.findUnique({
+      where: { id },
+      include: { _count: { select: { quizzes: true } } },
+    });
+
+    if (!category) throw new NotFoundException('category not found');
+    //nếu đã tồn tại quiz
+    if (category._count.quizzes > 0) {
+      throw new ConflictException('Cannot be deleted');
+    }
+    await this.prisma.category.delete({
+      where: { id },
+    });
+    return { message: 'Deleted successfully' };
+  }
+
+  async restore(id: string) {
+    const category = await this.prisma.category.findUnique({
+      where: { id },
+    });
+
+    if (!category) throw new NotFoundException('category not found');
+    return await this.prisma.category.update({
+      where: { id },
+      data: { deletedAt: null },
+    });
   }
 }
