@@ -66,8 +66,19 @@ model User {
   quizzes      Quiz[]
   attempts     Attempt[]
   refreshToken RefreshToken?
+  passwordResets PasswordReset[]
 
   @@map("users")
+}
+
+model PasswordReset {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  token     String   @unique
+  expiresAt DateTime
+  user      User     @relation(fields: [email], references: [email])
+
+  @@map("password_resets")
 }
 
 model Category {
