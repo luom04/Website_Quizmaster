@@ -19,19 +19,17 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @Controller('questions')
+@Roles(Role.admin)
+@UseGuards(RolesGuard)
 export class QuestionsController {
   constructor(private readonly questionsService: QuestionsService) {}
 
-  @Roles(Role.admin)
-  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post()
   create(@Body() createQuestionDto: CreateQuestionDto) {
     return this.questionsService.create(createQuestionDto);
   }
 
-  @Roles(Role.admin)
-  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Get()
   findAll(
@@ -53,16 +51,12 @@ export class QuestionsController {
     return this.questionsService.findOne(id);
   }
 
-  @Roles(Role.admin)
-  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: CreateQuestionDto) {
     return this.questionsService.update(id, dto);
   }
 
-  @Roles(Role.admin)
-  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @Delete(':id')
   remove(@Param('id') id: string) {
@@ -70,16 +64,12 @@ export class QuestionsController {
   }
 
   @Delete(':id/permanent')
-  @Roles(Role.admin)
-  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   removePermanent(@Param('id') id: string) {
     return this.questionsService.removePermanent(id);
   }
 
   @Post('import')
-  @Roles(Role.admin)
-  @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   importMany(@Body() dtos: CreateQuestionDto[]) {
     return this.questionsService.importQuestions(dtos);

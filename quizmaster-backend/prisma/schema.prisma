@@ -1,10 +1,17 @@
 // ============================================================
 // Prisma Schema — QuizMaster
-// Features: Question Bank, Soft Delete, Anti-cheat
+// Finalized for personal quiz project
+// Rules:
+// - Max score of each quiz = 10
+// - All questions have equal weight
+// - Single and multiple choice have same weight
+// - Multiple choice is all-or-nothing
+// - No CSV export feature
+// - Quiz plain password can be stored temporarily and cleared after 24h
 // ============================================================
 
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -50,83 +57,110 @@ enum EventType {
 // ============================================================
 
 model User {
-  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email        String    @unique
-  passwordHash String    @map("password_hash")
+  id           String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email        String  @unique
+  passwordHash String  @map("password_hash")
   name         String
-  avatarUrl    String?   @map("avatar_url")
-  role         Role      @default(user)
-  isActive     Boolean   @default(true) @map("is_active")
-  
-  // Soft Delete
-  deletedAt    DateTime? @map("deleted_at")
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
+  avatarUrl    String? @map("avatar_url")
+  role         Role    @default(user)
+  isActive     Boolean @default(true) @map("is_active")
 
-  quizzes      Quiz[]
-  attempts     Attempt[]
-  refreshToken RefreshToken?
+  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  quizzes        Quiz[]
+  attempts       Attempt[]
+  refreshToken   RefreshToken?
   passwordResets PasswordReset[]
 
+  @@index([email])
+  @@index([deletedAt])
   @@map("users")
 }
 
 model PasswordReset {
-  id        String   @id @default(uuid())
-  email     String   @unique
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @unique @map("user_id") @db.Uuid
   token     String   @unique
-  expiresAt DateTime
-  user      User     @relation(fields: [email], references: [email])
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("password_resets")
 }
 
+model RefreshToken {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  token     String   @unique
+  userId    String   @unique @map("user_id") @db.Uuid
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
 model Category {
-  id        String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name      String     @unique
-  
-  // Soft Delete
-  deletedAt DateTime?  @map("deleted_at")
-  createdAt DateTime   @default(now()) @map("created_at")
+  id   String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name String @unique
+
+  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
 
   quizzes   Quiz[]
   questions Question[]
 
+  @@index([deletedAt])
   @@map("categories")
 }
 
 model Quiz {
-  id              String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title           String
-  description     String?    @db.Text
-  categoryId      String?    @map("category_id") @db.Uuid
-  createdBy       String     @map("created_by") @db.Uuid
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String
+  description String? @db.Text
 
-  accessMode      AccessMode @default(public) @map("access_mode")
-  passwordHash    String?    @map("password_hash")
-  passwordPlain   String?    @map("password_plain") // Clear after 24h
+  categoryId String? @map("category_id") @db.Uuid
+  createdBy  String  @map("created_by") @db.Uuid
 
-  startsAt        DateTime?  @map("starts_at")
-  endsAt          DateTime?  @map("ends_at")
-  durationMinutes Int        @default(30) @map("duration_minutes")
+  accessMode AccessMode @default(public) @map("access_mode")
 
-  maxAttempts      Int       @default(1) @map("max_attempts")
-  showAnswer       Boolean   @default(false) @map("show_answer")
-  shuffleQuestions Boolean   @default(false) @map("shuffle_questions")
-  shuffleOptions   Boolean   @default(false) @map("shuffle_options")
-  passingScore     Int?      @map("passing_score")
-  isPublished      Boolean   @default(false) @map("is_published")
+  passwordHash           String?   @map("password_hash")
+  passwordPlain          String?   @map("password_plain")
+  passwordPlainExpiresAt DateTime? @map("password_plain_expires_at")
 
-  // Soft Delete
-  deletedAt       DateTime?  @map("deleted_at")
-  createdAt       DateTime   @default(now()) @map("created_at")
-  updatedAt       DateTime   @updatedAt @map("updated_at")
+  startsAt        DateTime? @map("starts_at")
+  endsAt          DateTime? @map("ends_at")
+  durationMinutes Int       @default(30) @map("duration_minutes")
+  maxAttempts     Int       @default(1) @map("max_attempts")
 
-  category        Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  creator         User           @relation(fields: [createdBy], references: [id])
-  quizQuestions   QuizQuestion[]
-  attempts        Attempt[]
+  showAnswer       Boolean @default(false) @map("show_answer")
+  shuffleQuestions Boolean @default(false) @map("shuffle_questions")
+  shuffleOptions   Boolean @default(false) @map("shuffle_options")
 
+  // Max score is always 10.
+  // passingScore should be from 0 to 10.
+  passingScore Float? @map("passing_score")
+
+  isPublished Boolean @default(false) @map("is_published")
+
+  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  creator  User      @relation(fields: [createdBy], references: [id])
+
+  quizQuestions QuizQuestion[]
+  attempts      Attempt[]
+
+  @@index([categoryId])
+  @@index([createdBy])
+  @@index([isPublished])
+  @@index([deletedAt])
   @@map("quizzes")
 }
 
@@ -135,18 +169,42 @@ model Question {
   categoryId String?      @map("category_id") @db.Uuid
   content    String       @db.Text
   type       QuestionType @default(single)
-  points     Int          @default(1)
-  
-  // Soft Delete
-  deletedAt  DateTime?    @map("deleted_at")
-  createdAt  DateTime     @default(now()) @map("created_at")
 
-  category      Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  options       Option[]
-  quizQuestions QuizQuestion[]
-  answers       Answer[]
+  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
 
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  options          Option[]
+  quizQuestions    QuizQuestion[]
+  attemptQuestions AttemptQuestion[]
+
+  @@index([categoryId])
+  @@index([type])
+  @@index([deletedAt])
   @@map("questions")
+}
+
+model Option {
+  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  questionId String  @map("question_id") @db.Uuid
+  content    String  @db.Text
+  isCorrect  Boolean @default(false) @map("is_correct")
+  orderIndex Int     @map("order_index")
+
+  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  attemptOptions AttemptOption[]
+
+  @@unique([questionId, orderIndex])
+  @@index([questionId])
+  @@index([deletedAt])
+  @@map("options")
 }
 
 model QuizQuestion {
@@ -158,59 +216,118 @@ model QuizQuestion {
   question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@id([quizId, questionId])
+  @@unique([quizId, orderIndex])
+  @@index([questionId])
   @@map("quiz_questions")
 }
 
-model Option {
-  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  questionId String  @map("question_id") @db.Uuid
-  content    String  @db.Text
-  isCorrect  Boolean @default(false) @map("is_correct")
-  orderIndex Int     @map("order_index")
-
-  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  answers  Answer[]
-
-  @@map("options")
-}
-
 model Attempt {
-  id               String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  quizId           String        @map("quiz_id") @db.Uuid
-  userId           String        @map("user_id") @db.Uuid
-  startedAt        DateTime      @default(now()) @map("started_at")
-  submittedAt      DateTime?     @map("submitted_at")
-  timeSpentSeconds Int?          @map("time_spent_seconds")
-  score            Int?
-  totalPoints      Int?          @map("total_points")
-  isPassed         Boolean?      @map("is_passed")
-  tabSwitchCount   Int           @default(0) @map("tab_switch_count")
-  ipAddress        String?       @map("ip_address")
-  userAgent        String?       @map("user_agent")
-  status           AttemptStatus @default(in_progress)
-  createdAt        DateTime      @default(now()) @map("created_at")
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  quizId String @map("quiz_id") @db.Uuid
+  userId String @map("user_id") @db.Uuid
 
-  quiz    Quiz        @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  answers Answer[]
-  events  QuizEvent[]
+  attemptNumber Int @map("attempt_number")
 
-  @@unique([quizId, userId, status], name: "unique_active_attempt")
+  startedAt   DateTime  @default(now()) @map("started_at")
+  deadlineAt  DateTime? @map("deadline_at")
+  submittedAt DateTime? @map("submitted_at")
+
+  timeSpentSeconds Int? @map("time_spent_seconds")
+
+  // Score is calculated by:
+  // correctCount / totalQuestions * 10
+  score          Float?
+  maxScore       Float    @default(10) @map("max_score")
+  totalQuestions Int      @default(0) @map("total_questions")
+  correctCount   Int      @default(0) @map("correct_count")
+  isPassed       Boolean? @map("is_passed")
+
+  tabSwitchCount Int     @default(0) @map("tab_switch_count")
+  ipAddress      String? @map("ip_address")
+  userAgent      String? @map("user_agent")
+
+  status AttemptStatus @default(in_progress)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  attemptQuestions AttemptQuestion[]
+  events           QuizEvent[]
+
+  @@unique([quizId, userId, attemptNumber])
+  @@index([quizId])
+  @@index([userId])
+  @@index([quizId, userId])
+  @@index([quizId, userId, status])
+  @@index([status])
   @@map("attempts")
 }
 
-model Answer {
+model AttemptQuestion {
   id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   attemptId  String  @map("attempt_id") @db.Uuid
-  questionId String  @map("question_id") @db.Uuid
-  optionId   String  @map("option_id") @db.Uuid
+  questionId String? @map("question_id") @db.Uuid
+
+  content    String       @db.Text
+  type       QuestionType
+  orderIndex Int          @map("order_index")
+
+  isCorrect Boolean? @map("is_correct")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  attempt  Attempt   @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question Question? @relation(fields: [questionId], references: [id], onDelete: SetNull)
+
+  options AttemptOption[]
+  answers AttemptAnswer[]
+
+  @@unique([attemptId, orderIndex])
+  @@index([attemptId])
+  @@index([questionId])
+  @@map("attempt_questions")
+}
+
+model AttemptOption {
+  id                String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  attemptQuestionId String  @map("attempt_question_id") @db.Uuid
+  optionId          String? @map("option_id") @db.Uuid
+
+  content    String  @db.Text
   isCorrect  Boolean @map("is_correct")
+  orderIndex Int     @map("order_index")
 
-  attempt  Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
-  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  option   Option   @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
 
-  @@map("answers")
+  attemptQuestion AttemptQuestion @relation(fields: [attemptQuestionId], references: [id], onDelete: Cascade)
+  option          Option?         @relation(fields: [optionId], references: [id], onDelete: SetNull)
+
+  answers AttemptAnswer[]
+
+  @@unique([attemptQuestionId, orderIndex])
+  @@index([attemptQuestionId])
+  @@index([optionId])
+  @@map("attempt_options")
+}
+
+model AttemptAnswer {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  attemptQuestionId String @map("attempt_question_id") @db.Uuid
+  attemptOptionId   String @map("attempt_option_id") @db.Uuid
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  attemptQuestion AttemptQuestion @relation(fields: [attemptQuestionId], references: [id], onDelete: Cascade)
+  attemptOption   AttemptOption   @relation(fields: [attemptOptionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptQuestionId, attemptOptionId])
+  @@index([attemptQuestionId])
+  @@index([attemptOptionId])
+  @@map("attempt_answers")
 }
 
 model QuizEvent {
@@ -222,20 +339,7 @@ model QuizEvent {
 
   attempt Attempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
 
+  @@index([attemptId])
+  @@index([eventType])
   @@map("quiz_events")
-}
-
-model RefreshToken {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  token     String   @unique
-  
-  // Thêm @unique ở đây để 1 user_id chỉ xuất hiện 1 lần duy nhất trong bảng này
-  userId    String   @unique @map("user_id") @db.Uuid 
-  
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  expiresAt DateTime @map("expires_at")
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@map("refresh_tokens")
 }

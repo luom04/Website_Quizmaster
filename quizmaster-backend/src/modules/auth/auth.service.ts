@@ -63,7 +63,7 @@ export class AuthService {
 
   async logout(userId: string) {
     // Xóa session để đá user ra khỏi hệ thống
-    await this.prisma.refreshToken.delete({ where: { userId } });
+    await this.prisma.refreshToken.deleteMany({ where: { userId } });
   }
 
   async refreshTokens(userId: string, rt: string): Promise<Tokens> {
@@ -120,10 +120,11 @@ export class AuthService {
   }
 
   async forgotPassword(email: string) {
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.user.findFirst({
       where: {
         email,
         deletedAt: null,
+        isActive: true,
       },
     });
     if (!user) return; // Không tiết lộ email có tồn tại hay không
@@ -133,10 +134,10 @@ export class AuthService {
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // Token có hạn 15 phút
 
     await this.prisma.passwordReset.upsert({
-      where: { email },
+      where: { userId: user.id },
       update: { token, expiresAt },
       create: {
-        email,
+        userId: user.id,
         token,
         expiresAt,
       },
@@ -147,6 +148,7 @@ export class AuthService {
   async resetPassword(token: string, newPassword: string) {
     const resetRecord = await this.prisma.passwordReset.findUnique({
       where: { token },
+      include: { user: true },
     });
 
     if (!resetRecord || resetRecord.expiresAt < new Date()) {
@@ -154,11 +156,11 @@ export class AuthService {
     }
 
     //kiểm tra xem user còn tồn tại không
-    const user = await this.prisma.user.findFirst({
-      where: { email: resetRecord.email, deletedAt: null },
-    });
-    if (!user) throw new ForbiddenException('User not found');
+    const user = resetRecord.user;
 
+    if (!user || user.deletedAt || !user.isActive) {
+      throw new ForbiddenException('User not found');
+    }
     const hash = await bcrypt.hash(newPassword, 10);
 
     //thực hiện cập nhật transaction: 1. cập nhật mật khẩu mới, 2. xóa token reset

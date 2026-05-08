@@ -1,5 +1,8 @@
+import { Optional } from '@nestjs/common/decorators/core/optional.decorator';
 import { AccessMode } from '@prisma/client';
 import {
+  ArrayMinSize,
+  IsArray,
   IsBoolean,
   IsDateString,
   IsEnum,
@@ -7,11 +10,15 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsUUID,
+  Max,
   Min,
+  ValidateNested,
 } from 'class-validator';
 
 import { Type } from 'class-transformer';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
+import { PartialType } from '@nestjs/mapped-types';
 
 export class CreateQuizDto {
   @IsString()
@@ -22,9 +29,9 @@ export class CreateQuizDto {
   @IsOptional()
   description?: string;
 
-  @IsString()
-  @IsNotEmpty()
-  categoryId!: string;
+  @IsUUID()
+  @IsOptional()
+  categoryId?: string;
 
   @IsEnum(AccessMode)
   @IsOptional()
@@ -41,22 +48,41 @@ export class CreateQuizDto {
 
   @IsDateString()
   @IsOptional()
-  startAt?: string;
+  startsAt?: string;
 
   @IsDateString()
   @IsOptional()
-  endAt?: string;
+  endsAt?: string;
 
   @IsInt()
   @IsOptional()
   maxAttempts?: number;
-}
 
-export class UpdateQuizDto extends CreateQuizDto {
+  // Tổng điểm max là 10, nên passingScore nằm trong 0 -> 10
+  @Type(() => Number)
+  @Min(0)
+  @Max(10)
+  @IsOptional()
+  passingScore?: number;
+
   @IsBoolean()
   @IsOptional()
-  isPublished?: boolean; // Bật/tắt trạng thái công khai
+  showAnswer?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  shuffleQuestions?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  shuffleOptions?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  isPublished?: boolean;
 }
+
+export class UpdateQuizDto extends PartialType(CreateQuizDto) {}
 
 export class VerifyQuizPasswordDto {
   @IsString()
@@ -73,7 +99,23 @@ export class AddQuestionToQuizDto {
   @Min(0)
   orderIndex!: number;
 }
+export class BulkAddQuestionItemDto {
+  @IsUUID()
+  @IsNotEmpty()
+  questionId!: string;
 
+  @IsInt()
+  @Min(0)
+  orderIndex!: number;
+}
+
+export class BulkAddQuestionsToQuizDto {
+  @IsArray()
+  @ArrayMinSize(1)
+  @ValidateNested({ each: true })
+  @Type(() => BulkAddQuestionItemDto)
+  questions!: BulkAddQuestionItemDto[];
+}
 export enum QuizStatus {
   DRAFT = 'DRAFT',
   UPCOMING = 'UPCOMING',
@@ -98,6 +140,7 @@ export class QueryQuizDto extends PaginationDto {
   search?: string;
 
   @IsOptional()
+  @IsUUID()
   categoryId?: string;
 
   @IsOptional()

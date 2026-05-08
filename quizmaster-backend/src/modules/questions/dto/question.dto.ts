@@ -1,3 +1,4 @@
+import { PartialType } from '@nestjs/mapped-types';
 import { QuestionType } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
@@ -7,9 +8,9 @@ import {
   IsInt,
   IsOptional,
   IsEnum,
-  Min,
   IsArray,
   ValidateNested,
+  ArrayMinSize,
 } from 'class-validator';
 
 export class CreateOptionDto {
@@ -37,12 +38,11 @@ export class CreateQuestionDto {
   @IsEnum(QuestionType)
   type!: QuestionType; //signer or multiple
 
-  @IsInt()
-  @Min(1)
-  points!: number;
-
   @IsArray()
+  @ArrayMinSize(2)
   @ValidateNested({ each: true })
   @Type(() => CreateOptionDto)
   options!: CreateOptionDto[];
 }
+
+export class UpdateQuestionDto extends PartialType(CreateQuestionDto) {}

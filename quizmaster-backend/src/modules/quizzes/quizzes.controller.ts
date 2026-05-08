@@ -14,6 +14,7 @@ import {
 import { QuizzesService } from './quizzes.service';
 import {
   AddQuestionToQuizDto,
+  BulkAddQuestionsToQuizDto,
   CreateQuizDto,
   QueryQuizAdminDto,
   QueryQuizDto,
@@ -25,8 +26,6 @@ import { Role } from '@prisma/client';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { GetCurrentUser } from '../../common/decorators/get-current-user.decorator';
 import { Public } from '../../common/decorators/public.decorator';
-import { PaginationDto } from '../../common/dto/pagination.dto';
-
 @Controller('quizzes')
 export class QuizzesController {
   constructor(private readonly quizzesService: QuizzesService) {}
@@ -107,7 +106,7 @@ export class QuizzesController {
 
   @Public()
   @HttpCode(HttpStatus.OK)
-  @Post(':id/verify')
+  @Post(':id/verify-password')
   verifyPassword(@Param('id') id: string, @Body() dto: VerifyQuizPasswordDto) {
     return this.quizzesService.verifyPassword(id, dto);
   }
@@ -120,12 +119,14 @@ export class QuizzesController {
     return this.quizzesService.addQuestion(id, dto);
   }
 
+  @Roles(Role.admin)
+  @UseGuards(RolesGuard)
   @Post(':id/questions/bulk')
   addQuestionsBulk(
     @Param('id') id: string,
-    @Body() questions: { questionId: string; orderIndex: number }[],
+    @Body() dto: BulkAddQuestionsToQuizDto,
   ) {
-    return this.quizzesService.addQuestionsToQuiz(id, questions);
+    return this.quizzesService.addQuestionsToQuiz(id, dto.questions);
   }
 
   @Roles(Role.admin)

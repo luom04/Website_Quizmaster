@@ -12,26 +12,56 @@ import { PaginationDto } from '../../common/dto/pagination.dto';
 export class QuestionsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createQuestionDto: CreateQuestionDto) {
-    // 1. Kiểm tra logic: Phải có ít nhất một đáp án đúng
-    const hasCorrectOption = createQuestionDto.options.some(
-      (opt) => opt.isCorrect,
-    );
-    if (!hasCorrectOption)
-      throw new BadRequestException('câu hỏi phải có ít nhất 1 đáp án đúng');
+  private validateQuestionOptions(dto: CreateQuestionDto) {
+    if (!dto.options || dto.options.length < 2) {
+      throw new BadRequestException('Câu hỏi phải có ít nhất 2 đáp án.');
+    }
 
-    // 2. Dùng Nested Create để tạo 1 lần ra cả Question và các Options
+    const correctCount = dto.options.filter((opt) => opt.isCorrect).length;
+
+    if (dto.type === QuestionType.single && correctCount !== 1) {
+      throw new BadRequestException(
+        'Câu hỏi single choice phải có đúng 1 đáp án đúng.',
+      );
+    }
+
+    if (dto.type === QuestionType.multiple && correctCount < 2) {
+      throw new BadRequestException(
+        'Câu hỏi multiple choice phải có ít nhất 2 đáp án đúng.',
+      );
+    }
+
+    const orderIndexes = dto.options.map((opt) => opt.orderIndex);
+    const uniqueOrderIndexes = new Set(orderIndexes);
+
+    if (uniqueOrderIndexes.size !== orderIndexes.length) {
+      throw new BadRequestException(
+        'orderIndex của các đáp án không được trùng.',
+      );
+    }
+  }
+
+  async create(createQuestionDto: CreateQuestionDto) {
+    this.validateQuestionOptions(createQuestionDto);
     return this.prisma.question.create({
       data: {
         content: createQuestionDto.content,
         type: createQuestionDto.type,
-        points: createQuestionDto.points,
         categoryId: createQuestionDto.categoryId,
         options: {
-          create: createQuestionDto.options,
+          create: createQuestionDto.options.map((opt) => ({
+            content: opt.content,
+            isCorrect: opt.isCorrect,
+            orderIndex: opt.orderIndex,
+          })),
         },
       },
-      include: { options: true },
+      include: {
+        options: {
+          orderBy: { orderIndex: 'asc' },
+        },
+        category: true,
+      },
     });
   }
 
@@ -61,9 +91,17 @@ export class QuestionsService {
         take: limit,
         where,
         include: {
-          options: { orderBy: { orderIndex: 'asc' } },
+          options: {
+            where: { deletedAt: null },
+            orderBy: { orderIndex: 'asc' },
+          },
           category: { select: { name: true } },
-          _count: { select: { quizQuestions: true } },
+          _count: {
+            select: {
+              quizQuestions: true,
+              attemptQuestions: true,
+            },
+          },
         },
         orderBy: { createdAt: 'desc' },
       }),
@@ -85,7 +123,19 @@ export class QuestionsService {
   async findOne(id: string) {
     const question = await this.prisma.question.findFirst({
       where: { id, deletedAt: null },
-      include: { options: true, category: true },
+      include: {
+        options: {
+          where: { deletedAt: null },
+          orderBy: { orderIndex: 'asc' },
+        },
+        category: true,
+        _count: {
+          select: {
+            quizQuestions: true,
+            attemptQuestions: true,
+          },
+        },
+      },
     });
     if (!question) throw new NotFoundException('Câu hỏi không tồn tại');
     return question;
@@ -93,44 +143,43 @@ export class QuestionsService {
 
   async update(id: string, dto: CreateQuestionDto) {
     // check câu hỏi tồn tại?
-    const question = await this.prisma.question.findUnique({
+    const question = await this.prisma.question.findFirst({
       where: { id, deletedAt: null },
     });
 
     if (!question) throw new NotFoundException('Question not found');
 
-    //check logic đáp án đúng
-    const hasCorrectOption = dto.options.some((opt) => opt.isCorrect);
+    this.validateQuestionOptions(dto);
 
-    if (!hasCorrectOption)
-      throw new BadRequestException(
-        'The question must have at least one correct answer.',
-      );
-    // sử dụng Transaction để cạp nhật
     return this.prisma.$transaction(async (tx) => {
       //xóa tấc cả các option cũ của question này
       await tx.option.deleteMany({
         where: { questionId: id },
       });
-      //update thông tin question và create các Options mới
       return tx.question.update({
         where: { id },
         data: {
           content: dto.content,
           type: dto.type,
-          points: dto.points,
           categoryId: dto.categoryId,
           options: {
-            create: dto.options,
+            create: dto.options.map((opt) => ({
+              content: opt.content,
+              isCorrect: opt.isCorrect,
+              orderIndex: opt.orderIndex,
+            })),
           },
         },
-        include: { options: true },
+        include: {
+          options: { orderBy: { orderIndex: 'asc' } },
+          category: true,
+        },
       });
     });
   }
 
   async remove(id: string) {
-    const question = await this.prisma.question.findUnique({
+    const question = await this.prisma.question.findFirst({
       where: { id, deletedAt: null },
     });
     if (!question) throw new NotFoundException('Question not found');
@@ -146,13 +195,16 @@ export class QuestionsService {
     const question = await this.prisma.question.findUnique({
       where: { id },
       include: {
-        _count: { select: { quizQuestions: true, answers: true } },
+        _count: { select: { quizQuestions: true, attemptQuestions: true } },
       },
     });
 
     if (!question) throw new NotFoundException('Câu hỏi không tồn tại');
 
-    if (question._count.quizQuestions > 0 || question._count.answers > 0) {
+    if (
+      question._count.quizQuestions > 0 ||
+      question._count.attemptQuestions > 0
+    ) {
       throw new BadRequestException(
         'Không thể xóa vĩnh viễn câu hỏi đã có dữ liệu thi hoặc nằm trong đề thi. Hãy dùng xóa mềm.',
       );
@@ -169,9 +221,19 @@ export class QuestionsService {
           data: {
             content: q.content,
             type: q.type,
-            points: q.points,
             categoryId: q.categoryId,
-            options: { create: q.options },
+            options: {
+              create: q.options.map((opt) => ({
+                content: opt.content,
+                isCorrect: opt.isCorrect,
+                orderIndex: opt.orderIndex,
+              })),
+            },
+          },
+          include: {
+            options: {
+              orderBy: { orderIndex: 'asc' },
+            },
           },
         }),
       ),
