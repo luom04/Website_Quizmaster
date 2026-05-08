@@ -1,34 +1,81 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { GetCurrentUser } from '../../common/decorators/get-current-user.decorator';
+import {
+  AdminUpdateUserDto,
+  QueryUsersDto,
+  UpdateProfileDto,
+  UserIdParamDto,
+} from './dto/user.dto';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { Role } from '@prisma/client';
+import { RolesGuard } from '../../common/guards/roles.guard';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  @Get('me')
+  getMe(@GetCurrentUser('sub') userId: string) {
+    return this.usersService.getMe(userId);
   }
 
+  @Patch('me')
+  updateMe(
+    @GetCurrentUser('sub') userId: string,
+    @Body() dto: UpdateProfileDto,
+  ) {
+    return this.usersService.updateMe(userId, dto);
+  }
+
+  @Roles(Role.admin)
+  @UseGuards(RolesGuard)
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Query() query: QueryUsersDto) {
+    return this.usersService.findAll(query);
   }
 
+  @Roles(Role.admin)
+  @UseGuards(RolesGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  findOne(@Param() params: UserIdParamDto) {
+    return this.usersService.findOne(params.id);
   }
 
+  @Roles(Role.admin)
+  @UseGuards(RolesGuard)
+  @Patch(':id/restore')
+  restore(@Param() params: UserIdParamDto) {
+    return this.usersService.restore(params.id);
+  }
+
+  @Roles(Role.admin)
+  @UseGuards(RolesGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  updateByAdmin(
+    @Param() params: UserIdParamDto,
+    @GetCurrentUser('sub') currentAdminId: string,
+    @Body() dto: AdminUpdateUserDto,
+  ) {
+    return this.usersService.updateByAdmin(params.id, currentAdminId, dto);
   }
 
+  @Roles(Role.admin)
+  @UseGuards(RolesGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  softDelete(
+    @Param() params: UserIdParamDto,
+    @GetCurrentUser('sub') currentAdminId: string,
+  ) {
+    return this.usersService.softDelete(params.id, currentAdminId);
   }
 }
