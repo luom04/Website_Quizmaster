@@ -1,34 +1,92 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req } from '@nestjs/common';
+import { Role } from '@prisma/client';
+import { GetCurrentUser } from '../../common/decorators/get-current-user.decorator';
+import {
+  AttemptIdParamDto,
+  LogAttemptEventDto,
+  QueryAttemptEventsDto,
+  QueryAttemptHistoryDto,
+  QuizIdParamDto,
+  StartAttemptDto,
+  SubmitAttemptDto,
+} from './dto/attemp.dto';
 import { AttemptsService } from './attempts.service';
-import { CreateAttemptDto } from './dto/create-attempt.dto';
-import { UpdateAttemptDto } from './dto/update-attempt.dto';
 
 @Controller('attempts')
 export class AttemptsController {
   constructor(private readonly attemptsService: AttemptsService) {}
 
-  @Post()
-  create(@Body() createAttemptDto: CreateAttemptDto) {
-    return this.attemptsService.create(createAttemptDto);
+  @Post('start/:quizId')
+  startAttempt(
+    @Param() params: QuizIdParamDto,
+    @GetCurrentUser('sub') userId: string,
+    @Body() dto: StartAttemptDto,
+    @Req() req: any,
+  ) {
+    return this.attemptsService.startAttempt(params.quizId, userId, dto, {
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+    });
   }
 
-  @Get()
-  findAll() {
-    return this.attemptsService.findAll();
+  @Post(':attemptId/submit')
+  submitAttempt(
+    @Param() params: AttemptIdParamDto,
+    @GetCurrentUser('sub') userId: string,
+    @Body() dto: SubmitAttemptDto,
+  ) {
+    return this.attemptsService.submitAttempt(params.attemptId, userId, dto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.attemptsService.findOne(+id);
+  @Get('my-history')
+  getMyHistory(
+    @GetCurrentUser('sub') userId: string,
+    @Query() query: QueryAttemptHistoryDto,
+  ) {
+    return this.attemptsService.getMyHistory(userId, query);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAttemptDto: UpdateAttemptDto) {
-    return this.attemptsService.update(+id, updateAttemptDto);
+  @Get('quiz/:quizId/my-attempts')
+  getMyQuizAttempts(
+    @Param() params: QuizIdParamDto,
+    @GetCurrentUser('sub') userId: string,
+    @Query() query: QueryAttemptHistoryDto,
+  ) {
+    return this.attemptsService.getMyQuizAttempts(params.quizId, userId, query);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.attemptsService.remove(+id);
+  @Get(':attemptId/result')
+  getResult(
+    @Param() params: AttemptIdParamDto,
+    @GetCurrentUser('sub') userId: string,
+    @GetCurrentUser('role') role: Role,
+  ) {
+    return this.attemptsService.getResult(params.attemptId, userId, role);
+  }
+
+  //event types
+
+  @Post(':attemptId/events')
+  logAttemptEvent(
+    @Param() params: AttemptIdParamDto,
+    @GetCurrentUser('sub') userId: string,
+    @Body() dto: LogAttemptEventDto,
+  ) {
+    return this.attemptsService.logAttemptEvent(params.attemptId, userId, dto);
+  }
+
+  @Get(':attemptId/events')
+  getAttemptEvents(
+    @Param() params: AttemptIdParamDto,
+    @GetCurrentUser('sub') userId: string,
+    @GetCurrentUser('role') role: Role,
+    @Query() query: QueryAttemptEventsDto,
+  ) {
+    return this.attemptsService.getAttemptEvents(
+      params.attemptId,
+      userId,
+      role,
+      query,
+    );
   }
 }
