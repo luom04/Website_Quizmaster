@@ -1,34 +1,38 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Role } from '@prisma/client';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { RolesGuard } from '../../common/guards/roles.guard';
 import { AdminService } from './admin.service';
-import { CreateAdminDto } from './dto/create-admin.dto';
-import { UpdateAdminDto } from './dto/update-admin.dto';
+import {
+  AdminDashboardQueryDto,
+  AdminRecentAttemptsQueryDto,
+  AdminSuspiciousAttemptsQueryDto,
+  AdminTopQuizzesQueryDto,
+} from './dto/admin.dto';
 
+@Roles(Role.admin)
+@UseGuards(RolesGuard)
 @Controller('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  @Post()
-  create(@Body() createAdminDto: CreateAdminDto) {
-    return this.adminService.create(createAdminDto);
+  @Get('dashboard')
+  getDashboard(@Query() query: AdminDashboardQueryDto) {
+    return this.adminService.getDashboard(query);
   }
 
-  @Get()
-  findAll() {
-    return this.adminService.findAll();
+  @Get('recent-attempts')
+  getRecentAttempts(@Query() query: AdminRecentAttemptsQueryDto) {
+    return this.adminService.getRecentAttempts(query);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.adminService.findOne(+id);
+  @Get('top-quizzes')
+  getTopQuizzes(@Query() query: AdminTopQuizzesQueryDto) {
+    return this.adminService.getTopQuizzes(query);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
-    return this.adminService.update(+id, updateAdminDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.adminService.remove(+id);
+  @Get('suspicious-attempts')
+  getSuspiciousAttempts(@Query() query: AdminSuspiciousAttemptsQueryDto) {
+    return this.adminService.getSuspiciousAttempts(query);
   }
 }
