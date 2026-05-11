@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { QuestionType } from '@prisma/client';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
   IsNotEmpty,
@@ -11,10 +11,12 @@ import {
   IsArray,
   ValidateNested,
   ArrayMinSize,
+  IsUUID,
 } from 'class-validator';
 
 export class CreateOptionDto {
-  @IsNotEmpty()
+  @IsUUID()
+  @Transform(({ value }) => (value === '' ? undefined : value))
   @IsString()
   content!: string;
 

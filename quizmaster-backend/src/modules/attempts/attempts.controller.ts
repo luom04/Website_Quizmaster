@@ -9,7 +9,7 @@ import {
   QuizIdParamDto,
   StartAttemptDto,
   SubmitAttemptDto,
-} from './dto/attemp.dto';
+} from './dto/attempt.dto';
 import { AttemptsService } from './attempts.service';
 
 @Controller('attempts')

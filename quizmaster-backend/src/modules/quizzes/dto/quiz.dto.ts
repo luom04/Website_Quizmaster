@@ -1,4 +1,3 @@
-import { Optional } from '@nestjs/common/decorators/core/optional.decorator';
 import { AccessMode } from '@prisma/client';
 import {
   ArrayMinSize,
@@ -91,7 +90,7 @@ export class VerifyQuizPasswordDto {
 }
 
 export class AddQuestionToQuizDto {
-  @IsString()
+  @IsUUID()
   @IsNotEmpty()
   questionId!: string;
 

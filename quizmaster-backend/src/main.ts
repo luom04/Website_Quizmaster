@@ -9,7 +9,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // tự động bỏ field không có trong DTO
       forbidNonWhitelisted: true, // báo lỗi nếu gửi field lạ
       transform: true,
     }),

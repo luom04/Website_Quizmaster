@@ -178,8 +178,10 @@ export class QuizzesService {
           where.isPublished = true;
           where.AND = [
             {
-              startsAt: { lte: now },
-              endsAt: { gte: now },
+              OR: [{ startsAt: { lte: now } }, { startsAt: null }],
+            },
+            {
+              OR: [{ endsAt: { gte: now } }, { endsAt: null }],
             },
           ];
           break;

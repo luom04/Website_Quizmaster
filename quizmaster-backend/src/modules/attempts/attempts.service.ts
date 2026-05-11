@@ -19,7 +19,7 @@ import {
   QueryAttemptHistoryDto,
   StartAttemptDto,
   SubmitAttemptDto,
-} from './dto/attemp.dto';
+} from './dto/attempt.dto';
 
 type StartAttemptMeta = {
   ipAddress?: string;

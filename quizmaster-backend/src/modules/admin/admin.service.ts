@@ -599,11 +599,19 @@ export class AdminService {
 
     const skip = (page - 1) * limit;
     const dateFilter = this.getDateFilter(from, to);
-
+    const suspiciousEventTypes = [
+      EventType.tab_blur,
+      EventType.copy_attempt,
+      EventType.right_click,
+      EventType.auto_submitted,
+    ];
+    const effectiveEventTypes = eventType ? [eventType] : suspiciousEventTypes;
     const effectiveMinTabSwitchCount = minTabSwitchCount ?? 1;
 
     const eventFilter: Prisma.QuizEventWhereInput = {
-      ...(eventType && { eventType }),
+      eventType: {
+        in: effectiveEventTypes,
+      },
       ...(dateFilter && { createdAt: dateFilter }),
     };
 
@@ -617,6 +625,7 @@ export class AdminService {
               {
                 OR: [
                   { createdAt: dateFilter },
+                  { submittedAt: dateFilter },
                   { events: { some: { createdAt: dateFilter } } },
                 ],
               },

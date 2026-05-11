@@ -23,7 +23,7 @@ export class AuthService {
         data: {
           email: dto.email,
           passwordHash: hash,
-          name: dto.email.split('@')[0], // Tạm lấy email làm tên
+          name: dto.email.split('@')[0], // Lấy phần trước @ làm tên mặc định
         },
       });
 
@@ -44,7 +44,7 @@ export class AuthService {
 
   async login(dto: AuthDto): Promise<Tokens> {
     const user = await this.prisma.user.findFirst({
-      where: { email: dto.email, deletedAt: null },
+      where: { email: dto.email, deletedAt: null, isActive: true },
     });
     if (!user) throw new ForbiddenException('Access Denied');
 
@@ -80,7 +80,7 @@ export class AuthService {
 
     if (!isMatch) throw new ForbiddenException('Access Denied');
     const user = await this.prisma.user.findFirst({
-      where: { id: userId, deletedAt: null },
+      where: { id: userId, deletedAt: null, isActive: true },
     });
 
     if (!user) throw new ForbiddenException('Access Denied');
