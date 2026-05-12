@@ -6,7 +6,7 @@ export type ApiSuccessResponse<T> = {
 export type ApiErrorResponse = {
   success: false;
   statusCode: number;
-  message: string | string[];
+  message: string | string[] | Record<string, unknown>;
   path?: string;
   timestamp?: string;
 };
