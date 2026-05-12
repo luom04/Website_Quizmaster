@@ -21,16 +21,23 @@ export class MailService {
 
   async sendResetPasswordEmail(to: string, token: string) {
     // URL này dẫn về trang Reset Password ở FRONTEND của bạn
-    const url = `http://localhost:3000/reset-password?token=${token}`;
+    const frontendUrl =
+      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
+    const resetPasswordUrl = `${frontendUrl}/reset-password?token=${token}`;
     await this.transporter.sendMail({
-      from: '"QuizMaster" <noreply@quizmaster.com>',
+      from: '"QuizMaster" <no-reply@quizmaster.local>',
       to,
       subject: 'Reset Your Password',
       html: `
         <h3>Yêu cầu đặt lại mật khẩu</h3>
+
         <p>Bạn nhận được email này vì đã yêu cầu đặt lại mật khẩu cho tài khoản QuizMaster.</p>
-        <p>Vui lòng click vào đường dẫn dưới đây để thực hiện (Hết hạn sau 15 phút):</p>
-        <a href="${url}" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none;">Đặt lại mật khẩu</a>
+
+        <p>Vui lòng click vào đường dẫn dưới đây để thực hiện. Liên kết sẽ hết hạn sau 15 phút.</p>
+
+        <p>
+          <a href="${resetPasswordUrl}">Đặt lại mật khẩu</a>
+        </p>
       `,
     });
   }
