@@ -26,43 +26,55 @@ export function UserHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur">
+    <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Logo />
 
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden h-full items-center gap-1 md:flex">
           {userNavItems.map((item) => (
             <NavLink
               key={item.href}
               to={item.href}
               className={({ isActive }) =>
                 cn(
-                  "rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground",
-                  isActive && "bg-muted text-foreground",
+                  "relative flex h-full items-center px-4 text-sm font-semibold transition-all duration-200",
+                  "text-muted-foreground hover:text-primary",
+                  isActive && "text-primary",
                 )
               }
             >
-              {item.label}
+              {({ isActive }) => (
+                <>
+                  {item.label}
+                  {/* Thanh Indicator phía dưới khi Active */}
+                  {isActive && (
+                    <span className="absolute bottom-[-1px] left-0 h-0.5 w-full rounded-t-full bg-primary shadow-[0_-2px_8px_rgba(var(--primary),0.4)]" />
+                  )}
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-4 md:flex">
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             disabled={logoutMutation.isPending}
             onClick={handleLogout}
+            className="group flex items-center gap-2 rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive cursor-pointer"
           >
-            <LogOut className="size-4" />
-            {logoutMutation.isPending ? "Đang thoát..." : "Logout"}
+            <LogOut className="size-4 transition-transform group-hover:-translate-x-0.5" />
+            <span className="font-medium">
+              {logoutMutation.isPending ? "Đang thoát..." : "Logout"}
+            </span>
           </Button>
         </div>
 
         <Button
           variant="ghost"
           size="icon"
-          className="md:hidden"
+          className="rounded-xl md:hidden"
           onClick={() => setMobileMenuOpen(true)}
         >
           <Menu className="size-5" />

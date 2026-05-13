@@ -39,6 +39,9 @@ export const queryKeys = {
     all: ["attempts"] as const,
     myHistory: (params?: unknown) =>
       ["attempts", "my-history", params] as const,
+    byQuiz: (quizId: string, params?: unknown) =>
+      ["attempts", "quiz", quizId, params] as const,
+    taking: (attemptId: string) => ["attempts", "taking", attemptId] as const,
     result: (attemptId: string) => ["attempts", "result", attemptId] as const,
     events: (attemptId: string, params?: unknown) =>
       ["attempts", "events", attemptId, params] as const,

@@ -24,3 +24,28 @@ export type PaginatedData<T> = {
   items: T[];
   meta: PaginationMeta;
 };
+
+export type BackendPaginatedData<T> = {
+  data: T[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    lastPage?: number;
+    totalPages?: number;
+  };
+};
+
+export function normalizePaginatedData<T>(
+  payload: BackendPaginatedData<T>,
+): PaginatedData<T> {
+  return {
+    items: payload.data,
+    meta: {
+      total: payload.meta.total,
+      page: payload.meta.page,
+      limit: payload.meta.limit,
+      totalPages: payload.meta.totalPages ?? payload.meta.lastPage ?? 1,
+    },
+  };
+}

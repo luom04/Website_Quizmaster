@@ -39,7 +39,7 @@ export function AuthBootstrap({ children }: AuthBootstrapProps) {
 
         clearAuth();
       } finally {
-        if (!isMounted) {
+        if (isMounted) {
           setAuthLoading(false);
           setIsBootstrapped(true);
         }

@@ -6,7 +6,6 @@ import { ROUTES } from "@/config/routes";
 import { getAuthenticatedRedirectPath } from "@/lib/auth-redirect";
 import { useAuthStore } from "@/stores/auth.store";
 import type { UserRole } from "@/types/user";
-
 type ProtectedRouteProps = {
   children: ReactNode;
   allowedRoles?: UserRole[];
@@ -26,20 +25,20 @@ export function ProtectedRoute({
     return <AuthLoadingScreen />;
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !user) {
     return (
-      <Navigate to={ROUTES.AUTH.LOGIN} replace state={{ from: location }} />
+      <Navigate
+        to={ROUTES.AUTH.LOGIN}
+        replace
+        state={{
+          from: location,
+        }}
+      />
     );
   }
 
-  if (allowedRoles?.length) {
-    if (!user) {
-      return <Navigate to={ROUTES.AUTH.LOGIN} replace />;
-    }
-
-    if (!allowedRoles.includes(user.role)) {
-      return <Navigate to={getAuthenticatedRedirectPath(user.role)} replace />;
-    }
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to={getAuthenticatedRedirectPath(user.role)} replace />;
   }
 
   return children;

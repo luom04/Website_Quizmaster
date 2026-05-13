@@ -139,6 +139,7 @@ export const router = createBrowserRouter([
 
   {
     path: "*",
-    element: <Navigate to={ROUTES.USER.QUIZZES} replace />,
+    // element: <Navigate to={ROUTES.USER.QUIZZES} replace />,
+    element: <div className="p-6">404 - Page not found</div>,
   },
 ]);
