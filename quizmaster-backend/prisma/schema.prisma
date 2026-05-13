@@ -62,6 +62,7 @@ model User {
   passwordHash String  @map("password_hash")
   name         String
   avatarUrl    String? @map("avatar_url")
+  avatarPublicId String? @map("avatar_public_id")
   role         Role    @default(user)
   isActive     Boolean @default(true) @map("is_active")
 
