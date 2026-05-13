@@ -1,6 +1,6 @@
 export type UserRole = "user" | "admin";
 
-export type User = {
+export type UserProfile = {
   id: string;
   email: string;
   name: string | null;
@@ -10,4 +10,7 @@ export type User = {
   deletedAt: string | null;
   createdAt: string;
   updatedAt: string;
+};
+export type UpdateMeRequest = {
+  name?: string;
 };

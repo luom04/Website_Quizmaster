@@ -7,6 +7,7 @@ import type {
   RegisterRequest,
   ResetPasswordRequest,
 } from "@/types/auth";
+
 import type { User } from "@/types/user";
 
 const AUTH_ENDPOINTS = {
