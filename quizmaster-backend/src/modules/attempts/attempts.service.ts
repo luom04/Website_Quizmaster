@@ -871,4 +871,46 @@ export class AttemptsService {
       },
     };
   }
+
+  async getAttemptForTaking(attemptId: string, userId: string) {
+    const attempt = await this.prisma.attempt.findFirst({
+      where: {
+        id: attemptId,
+        userId,
+      },
+      include: {
+        attemptQuestions: {
+          orderBy: {
+            orderIndex: 'asc',
+          },
+          include: {
+            options: {
+              orderBy: {
+                orderIndex: 'asc',
+              },
+            },
+            answers: true,
+          },
+        },
+      },
+    });
+
+    if (!attempt) {
+      throw new NotFoundException('Attempt not found');
+    }
+
+    if (attempt.status !== AttemptStatus.in_progress) {
+      throw new BadRequestException(
+        'Attempt này không còn ở trạng thái đang làm.',
+      );
+    }
+
+    if (this.isExpired(attempt.deadlineAt)) {
+      await this.markAttemptTimedOut(attempt.id);
+
+      throw new BadRequestException('Attempt đã hết hạn.');
+    }
+
+    return this.formatAttemptForTaking(attempt);
+  }
 }

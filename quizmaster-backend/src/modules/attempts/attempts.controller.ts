@@ -55,6 +55,14 @@ export class AttemptsController {
     return this.attemptsService.getMyQuizAttempts(params.quizId, userId, query);
   }
 
+  @Get(':attemptId/taking')
+  getAttemptForTaking(
+    @Param() params: AttemptIdParamDto,
+    @GetCurrentUser('sub') userId: string,
+  ) {
+    return this.attemptsService.getAttemptForTaking(params.attemptId, userId);
+  }
+
   @Get(':attemptId/result')
   getResult(
     @Param() params: AttemptIdParamDto,
