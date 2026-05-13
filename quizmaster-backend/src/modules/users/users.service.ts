@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { Prisma, Role } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
@@ -26,7 +27,10 @@ const USER_SAFE_SELECT = {
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
   async getMe(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: {
@@ -52,10 +56,6 @@ export class UsersService {
       data.name = dto.name;
     }
 
-    if (dto.avatarUrl !== undefined) {
-      data.avatarUrl = dto.avatarUrl;
-    }
-
     if (Object.keys(data).length === 0) {
       throw new BadRequestException('Không có dữ liệu để cập nhật.');
     }
@@ -65,6 +65,77 @@ export class UsersService {
       data,
       select: USER_SAFE_SELECT,
     });
+  }
+
+  async uploadMyAvatar(userId: string, file?: Express.Multer.File) {
+    this.validateAvatarFile(file);
+
+    const currentUser = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        avatarPublicId: true,
+      },
+    });
+
+    if (!currentUser) {
+      throw new BadRequestException('User not found.');
+    }
+
+    const uploadedImage = await this.cloudinaryService.uploadImageBuffer(file);
+
+    try {
+      const updatedUser = await this.prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          avatarUrl: uploadedImage.secure_url,
+          avatarPublicId: uploadedImage.public_id,
+        },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          avatarUrl: true,
+          role: true,
+          isActive: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+
+      if (currentUser.avatarPublicId) {
+        await this.cloudinaryService.deleteImage(currentUser.avatarPublicId);
+      }
+
+      return updatedUser;
+    } catch (error) {
+      await this.cloudinaryService.deleteImage(uploadedImage.public_id);
+      throw error;
+    }
+  }
+  private validateAvatarFile(
+    file?: Express.Multer.File,
+  ): asserts file is Express.Multer.File {
+    if (!file) {
+      throw new BadRequestException('Avatar file is required.');
+    }
+
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
+
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      throw new BadRequestException(
+        'Avatar must be a JPEG, PNG, or WEBP image.',
+      );
+    }
+
+    const maxSizeInBytes = 2 * 1024 * 1024;
+
+    if (file.size > maxSizeInBytes) {
+      throw new BadRequestException('Avatar size must not exceed 2MB.');
+    }
   }
 
   async findAll(query: QueryUsersDto) {

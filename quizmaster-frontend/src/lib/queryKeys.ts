@@ -6,6 +6,7 @@ export const queryKeys = {
 
   users: {
     all: ["users"] as const,
+    me: () => ["users", "me"] as const,
     lists: () => ["users", "list"] as const,
     list: (params?: unknown) => ["users", "list", params] as const,
     detail: (id: string) => ["users", "detail", id] as const,

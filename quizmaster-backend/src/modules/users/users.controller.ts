@@ -7,7 +7,12 @@ import {
   Delete,
   Query,
   UseGuards,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { UsersService } from './users.service';
 import { GetCurrentUser } from '../../common/decorators/get-current-user.decorator';
 import {
@@ -19,10 +24,14 @@ import {
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { RolesGuard } from '../../common/guards/roles.guard';
+import { memoryStorage } from 'multer';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @Get('me')
   getMe(@GetCurrentUser('sub') userId: string) {
@@ -35,6 +44,22 @@ export class UsersController {
     @Body() dto: UpdateProfileDto,
   ) {
     return this.usersService.updateMe(userId, dto);
+  }
+
+  @Patch('me/avatar')
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      storage: memoryStorage(),
+      limits: {
+        fileSize: 2 * 1024 * 1024,
+      },
+    }),
+  )
+  uploadMyAvatar(
+    @GetCurrentUser('sub') userId: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.usersService.uploadMyAvatar(userId, file);
   }
 
   @Roles(Role.admin)

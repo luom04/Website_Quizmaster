@@ -17,12 +17,6 @@ export class UpdateProfileDto {
   @MinLength(2)
   @MaxLength(100)
   name?: string;
-
-  @Transform(({ value }) => (value === '' ? null : value))
-  @IsOptional()
-  @IsString()
-  @Transform(({ value }) => (value === '' ? null : value))
-  avatarUrl?: string | null;
 }
 
 export class AdminUpdateUserDto {
