@@ -1,6 +1,7 @@
 import {
   IsDateString,
   IsEnum,
+  IsIn,
   IsInt,
   IsOptional,
   IsUUID,
@@ -86,4 +87,14 @@ export class AdminSuspiciousAttemptsQueryDto extends PaginationDto {
   @IsOptional()
   @IsDateString()
   to?: string;
+}
+
+export class AdminAttemptEventsQueryDto extends PaginationDto {
+  @IsOptional()
+  @IsEnum(EventType)
+  eventType?: EventType;
+
+  @IsOptional()
+  @IsIn(['asc', 'desc'])
+  sort?: 'asc' | 'desc';
 }

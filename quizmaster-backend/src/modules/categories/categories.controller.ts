@@ -9,9 +9,14 @@ import {
   UseGuards,
   HttpStatus,
   HttpCode,
+  Query,
 } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
-import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
+import {
+  CreateCategoryDto,
+  UpdateCategoryDto,
+  QueryCategoriesDto,
+} from './dto/category.dto';
 import { Role } from '@prisma/client';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -32,8 +37,8 @@ export class CategoriesController {
   @Public()
   @HttpCode(HttpStatus.OK)
   @Get()
-  findAll() {
-    return this.categoriesService.findAll();
+  findAll(@Query() query: QueryCategoriesDto) {
+    return this.categoriesService.findAll(query);
   }
 
   @Public()

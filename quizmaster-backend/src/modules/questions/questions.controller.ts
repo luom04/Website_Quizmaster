@@ -33,16 +33,16 @@ export class QuestionsController {
   @HttpCode(HttpStatus.OK)
   @Get()
   findAll(
-    @Query() pagination: PaginationDto,
     @Query('categoryId') categoryId?: string,
     @Query('type') type?: QuestionType,
     @Query('search') search?: string,
+    @Query('includeDeleted') includeDeleted?: boolean,
   ) {
     return this.questionsService.findAll({
-      pagination,
       categoryId,
       type,
       search,
+      includeDeleted,
     });
   }
 
@@ -73,5 +73,11 @@ export class QuestionsController {
   @HttpCode(HttpStatus.OK)
   importMany(@Body() dtos: CreateQuestionDto[]) {
     return this.questionsService.importQuestions(dtos);
+  }
+
+  @Patch(':id/restore')
+  @HttpCode(HttpStatus.OK)
+  restore(@Param('id') id: string) {
+    return this.questionsService.restore(id);
   }
 }
