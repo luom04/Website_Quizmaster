@@ -1,3 +1,4 @@
+import { PaginationDto } from './../../../common/dto/pagination.dto';
 import { PartialType } from '@nestjs/mapped-types';
 import { QuestionType } from '@prisma/client';
 import { Transform, Type } from 'class-transformer';
@@ -15,9 +16,8 @@ import {
 } from 'class-validator';
 
 export class CreateOptionDto {
-  @IsUUID()
-  @Transform(({ value }) => (value === '' ? undefined : value))
   @IsString()
+  @IsNotEmpty()
   content!: string;
 
   @IsNotEmpty()
@@ -29,8 +29,9 @@ export class CreateOptionDto {
 }
 
 export class CreateQuestionDto {
-  @IsString()
   @IsOptional()
+  @Transform(({ value }) => (value === '' ? undefined : value))
+  @IsUUID()
   categoryId?: string;
 
   @IsString()
@@ -48,3 +49,26 @@ export class CreateQuestionDto {
 }
 
 export class UpdateQuestionDto extends PartialType(CreateQuestionDto) {}
+
+export class QueryQuestionsDto extends PaginationDto {
+  @IsOptional()
+  @IsUUID()
+  categoryId?: string;
+
+  @IsOptional()
+  @IsEnum(QuestionType)
+  type?: QuestionType;
+
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    return value;
+  })
+  @IsBoolean()
+  includeDeleted?: boolean;
+}

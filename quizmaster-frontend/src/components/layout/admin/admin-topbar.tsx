@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bell, LogOut, Menu, Search } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -39,18 +39,13 @@ export function AdminTopbar() {
           <div className="lg:hidden">
             <Logo showText={false} />
           </div>
-
-          <div className="hidden items-center gap-2 rounded-xl border bg-muted/40 px-3 py-2 text-sm text-muted-foreground md:flex">
-            <Search className="size-4" />
-            Search admin pages...
+          <div className="hidden items-center gap-2 rounded-full border bg-muted/30 px-4 py-2 text-sm text-muted-foreground lg:flex">
+            <span className="size-2 rounded-full bg-primary" />
+            Admin workspace
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon">
-            <Bell className="size-4" />
-          </Button>
-
           <Button
             variant="outline"
             size="sm"

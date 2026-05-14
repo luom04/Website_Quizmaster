@@ -1,7 +1,12 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { AttemptStatus, EventType, Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
+  AdminAttemptEventsQueryDto,
   AdminDashboardQueryDto,
   AdminRecentAttemptsQueryDto,
   AdminSuspiciousAttemptsQueryDto,
@@ -734,6 +739,61 @@ export class AdminService {
         };
       }),
 
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+  async getAttemptEvents(attemptId: string, query: AdminAttemptEventsQueryDto) {
+    const { page = 1, limit = 5, eventType, sort = 'asc' } = query;
+
+    const skip = (page - 1) * limit;
+
+    const attempt = await this.prisma.attempt.findUnique({
+      where: {
+        id: attemptId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!attempt) {
+      throw new NotFoundException('Attempt not found.');
+    }
+
+    const where = {
+      attemptId,
+      ...(eventType && { eventType }),
+    };
+
+    const [data, total] = await Promise.all([
+      this.prisma.quizEvent.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: {
+          createdAt: sort,
+        },
+        select: {
+          id: true,
+          attemptId: true,
+          eventType: true,
+          metadata: true,
+          createdAt: true,
+        },
+      }),
+
+      this.prisma.quizEvent.count({
+        where,
+      }),
+    ]);
+
+    return {
+      data,
       meta: {
         page,
         limit,

@@ -34,6 +34,7 @@ export const queryKeys = {
     adminLists: () => ["quizzes", "admin", "list"] as const,
     adminList: (params?: unknown) =>
       ["quizzes", "admin", "list", params] as const,
+    password: (id: string) => ["quizzes", "password", id] as const,
   },
 
   attempts: {
@@ -56,5 +57,7 @@ export const queryKeys = {
     topQuizzes: (params?: unknown) => ["admin", "top-quizzes", params] as const,
     suspiciousAttempts: (params?: unknown) =>
       ["admin", "suspicious-attempts", params] as const,
+    attemptEvents: (attemptId: string, params?: unknown) =>
+      ["admin", "attempt-events", attemptId, params] as const,
   },
 };

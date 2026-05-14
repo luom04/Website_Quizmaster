@@ -3,7 +3,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
+import {
+  CreateCategoryDto,
+  UpdateCategoryDto,
+  QueryCategoriesDto,
+} from './dto/category.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
@@ -20,15 +24,37 @@ export class CategoriesService {
     return this.prisma.category.create({ data: createCategoryDto });
   }
 
-  async findAll() {
-    return await this.prisma.category.findMany({
-      where: { deletedAt: null },
+  async findAll(query: QueryCategoriesDto = {}) {
+    const where = {
+      ...(query.includeDeleted ? {} : { deletedAt: null }),
+      ...(query.search
+        ? {
+            name: {
+              contains: query.search,
+              mode: 'insensitive' as const,
+            },
+          }
+        : {}),
+    };
+
+    return this.prisma.category.findMany({
+      where,
       include: {
-        _count: { select: { quizzes: { where: { deletedAt: null } } } },
+        _count: {
+          select: {
+            quizzes: {
+              where: {
+                deletedAt: null,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
   }
-
   async findOne(id: string) {
     const category = await this.prisma.category.findFirst({
       where: { id, deletedAt: null },

@@ -3,10 +3,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateQuestionDto } from './dto/question.dto';
+import { CreateQuestionDto, QueryQuestionsDto } from './dto/question.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { QuestionType } from '@prisma/client';
-import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @Injectable()
 export class QuestionsService {
@@ -65,23 +64,29 @@ export class QuestionsService {
     });
   }
 
-  async findAll(query: {
-    pagination: PaginationDto;
-    categoryId?: string;
-    type?: QuestionType;
-    search?: string;
-  }) {
-    const { pagination, categoryId, type, search } = query;
-    const { page = 1, limit = 10 } = pagination;
+  async findAll(query: QueryQuestionsDto) {
+    const {
+      page = 1,
+      limit = 10,
+      categoryId,
+      type,
+      search,
+      includeDeleted,
+    } = query;
 
     const skip = (page - 1) * limit;
 
+    const shouldIncludeDeleted = includeDeleted === true;
+
     const where = {
-      deletedAt: null,
+      ...(shouldIncludeDeleted ? {} : { deletedAt: null }),
       ...(categoryId && { categoryId }),
       ...(type && { type }),
       ...(search && {
-        content: { contains: search, mode: 'insensitive' as const },
+        content: {
+          contains: search,
+          mode: 'insensitive' as const,
+        },
       }),
     };
 
@@ -92,10 +97,17 @@ export class QuestionsService {
         where,
         include: {
           options: {
-            where: { deletedAt: null },
-            orderBy: { orderIndex: 'asc' },
+            ...(shouldIncludeDeleted ? {} : { where: { deletedAt: null } }),
+            orderBy: {
+              orderIndex: 'asc',
+            },
           },
-          category: { select: { name: true } },
+          category: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
           _count: {
             select: {
               quizQuestions: true,
@@ -103,9 +115,14 @@ export class QuestionsService {
             },
           },
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: {
+          createdAt: 'desc',
+        },
       }),
-      this.prisma.question.count({ where }),
+
+      this.prisma.question.count({
+        where,
+      }),
     ]);
 
     return {
@@ -122,13 +139,25 @@ export class QuestionsService {
   //Lấy chi tiết kèm thống kê
   async findOne(id: string) {
     const question = await this.prisma.question.findFirst({
-      where: { id, deletedAt: null },
+      where: {
+        id,
+        deletedAt: null,
+      },
       include: {
         options: {
-          where: { deletedAt: null },
-          orderBy: { orderIndex: 'asc' },
+          where: {
+            deletedAt: null,
+          },
+          orderBy: {
+            orderIndex: 'asc',
+          },
         },
-        category: true,
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         _count: {
           select: {
             quizQuestions: true,
@@ -137,7 +166,11 @@ export class QuestionsService {
         },
       },
     });
-    if (!question) throw new NotFoundException('Câu hỏi không tồn tại');
+
+    if (!question) {
+      throw new NotFoundException('Câu hỏi không tồn tại');
+    }
+
     return question;
   }
 
@@ -238,5 +271,52 @@ export class QuestionsService {
         }),
       ),
     );
+  }
+
+  async restore(id: string) {
+    const question = await this.prisma.question.findUnique({
+      where: { id },
+    });
+
+    if (!question) {
+      throw new NotFoundException('Question not found.');
+    }
+
+    if (!question.deletedAt) {
+      throw new BadRequestException('Question is not deleted.');
+    }
+
+    return this.prisma.question.update({
+      where: { id },
+      data: {
+        deletedAt: null,
+        options: {
+          updateMany: {
+            where: {
+              questionId: id,
+            },
+            data: {
+              deletedAt: null,
+            },
+          },
+        },
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        options: {
+          where: {
+            deletedAt: null,
+          },
+          orderBy: {
+            orderIndex: 'asc',
+          },
+        },
+      },
+    });
   }
 }
