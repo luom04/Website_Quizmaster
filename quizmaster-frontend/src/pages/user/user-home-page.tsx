@@ -12,6 +12,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import type { Quiz } from "@/types/quiz";
 
 export function UserHomePage() {
+  const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
 
@@ -19,7 +20,7 @@ export function UserHomePage() {
 
   const quizParams = useMemo(
     () => ({
-      page: 1,
+      page,
       limit: 12,
       search: debouncedSearch || undefined,
       categoryId: selectedCategoryId || undefined,
@@ -27,23 +28,33 @@ export function UserHomePage() {
       sortBy: "createdAt" as const,
       order: "desc" as const,
     }),
-    [debouncedSearch, selectedCategoryId],
+    [debouncedSearch, page, selectedCategoryId],
   );
 
   const categoriesQuery = useCategories();
-
   const quizzesQuery = usePublicQuizzes(quizParams);
 
   const categories = categoriesQuery.data ?? [];
 
   const quizzes = quizzesQuery.data?.items ?? [];
+  const meta = quizzesQuery.data?.meta;
   const totalQuizzes = quizzesQuery.data?.meta.total ?? quizzes.length;
 
   function handleResetFilters() {
     setSearch("");
     setSelectedCategoryId("");
+    setPage(1);
   }
 
+  function handleSearchChange(value: string) {
+    setSearch(value);
+    setPage(1);
+  }
+
+  function handleCategoryChange(value: string) {
+    setSelectedCategoryId(value);
+    setPage(1);
+  }
   const hasFilters = Boolean(search || selectedCategoryId);
 
   return (
@@ -78,8 +89,8 @@ export function UserHomePage() {
         selectedCategoryId={selectedCategoryId}
         categories={categories}
         isCategoriesLoading={categoriesQuery.isLoading}
-        onSearchChange={setSearch}
-        onCategoryChange={setSelectedCategoryId}
+        onSearchChange={handleSearchChange}
+        onCategoryChange={handleCategoryChange}
       />
 
       {quizzesQuery.isLoading ? (
@@ -122,6 +133,35 @@ export function UserHomePage() {
           ))}
         </div>
       )}
+      {meta && meta.totalPages > 1 ? (
+        <div className="mt-8 flex flex-col gap-3 rounded-3xl border bg-card p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-muted-foreground">
+            Page {meta.page} / {meta.totalPages} · {meta.total} quizzes
+          </p>
+
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={page <= 1 || quizzesQuery.isFetching}
+              onClick={() => setPage((current) => Math.max(1, current - 1))}
+            >
+              Previous
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              disabled={page >= meta.totalPages || quizzesQuery.isFetching}
+              onClick={() =>
+                setPage((current) => Math.min(meta.totalPages, current + 1))
+              }
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

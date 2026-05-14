@@ -1,4 +1,5 @@
 import type { Category } from "@/types/category";
+import type { Question } from "@/types/question";
 
 export type QuizAccessMode = "public" | "password_required";
 
@@ -109,4 +110,61 @@ export type VerifyQuizPasswordRequest = {
 export type VerifyQuizPasswordResponse = {
   success?: boolean;
   message?: string;
+};
+
+export type AdminQuizQueryParams = {
+  page?: number;
+  limit?: number;
+  status?: QuizStatus;
+};
+
+export type CreateQuizRequest = {
+  title: string;
+  description?: string;
+  categoryId?: string;
+  accessMode?: QuizAccessMode;
+  password?: string;
+  durationMinutes?: number;
+  startsAt?: string;
+  endsAt?: string;
+  maxAttempts?: number;
+  passingScore?: number;
+  showAnswer?: boolean;
+  shuffleQuestions?: boolean;
+  shuffleOptions?: boolean;
+  isPublished?: boolean;
+};
+
+export type UpdateQuizRequest = Partial<CreateQuizRequest>;
+
+export type AddQuestionToQuizRequest = {
+  questionId: string;
+  orderIndex: number;
+};
+
+export type BulkAddQuestionToQuizItem = {
+  questionId: string;
+  orderIndex: number;
+};
+
+export type BulkAddQuestionsToQuizRequest = {
+  questions: BulkAddQuestionToQuizItem[];
+};
+
+export type QuizPasswordResponse = {
+  password: string | null;
+  passwordPlainExpiresAt: string | null;
+};
+
+export type QuizQuestionItem = {
+  quizId: string;
+  questionId: string;
+  orderIndex: number;
+  question: Question;
+};
+
+export type QuizQuestionLink = {
+  quizId: string;
+  questionId: string;
+  orderIndex: number;
 };

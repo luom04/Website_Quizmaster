@@ -10,8 +10,16 @@ import { userNavItems } from "@/components/layout/user/user-nav-items";
 import { ROUTES } from "@/config/routes";
 import { useLogout } from "@/features/auth/auth.hooks";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/stores/auth.store";
 
 export function UserHeader() {
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.role === "admin";
+
+  const navItems = isAdmin
+    ? [...userNavItems, { label: "Admin", href: ROUTES.ADMIN.DASHBOARD }]
+    : userNavItems;
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navigate = useNavigate();
@@ -31,7 +39,7 @@ export function UserHeader() {
         <Logo />
 
         <nav className="hidden h-full items-center gap-1 md:flex">
-          {userNavItems.map((item) => (
+          {navItems.map((item) => (
             <NavLink
               key={item.href}
               to={item.href}

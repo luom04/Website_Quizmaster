@@ -13,3 +13,11 @@ export type CategoryQueryParams = {
   search?: string;
   includeDeleted?: boolean;
 };
+
+export type CreateCategoryRequest = {
+  name: string;
+};
+
+export type UpdateCategoryRequest = {
+  name: string;
+};
