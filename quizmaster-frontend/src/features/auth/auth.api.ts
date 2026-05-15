@@ -61,7 +61,7 @@ export const authApi = {
       payload,
     );
 
-    return response.data;
+    return response.data.data;
   },
 
   async getCurrentUser() {

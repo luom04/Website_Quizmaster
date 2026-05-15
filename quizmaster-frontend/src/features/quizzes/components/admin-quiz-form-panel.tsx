@@ -91,7 +91,7 @@ export function AdminQuizFormPanel({
     setStartsAt(toDateTimeLocal(quiz.startsAt));
     setEndsAt(toDateTimeLocal(quiz.endsAt));
     setMaxAttempts(quiz.maxAttempts);
-    setPassingScore(quiz.passingScore);
+    setPassingScore(quiz.passingScore ?? 5);
     setShowAnswer(quiz.showAnswer);
     setShuffleQuestions(quiz.shuffleQuestions);
     setShuffleOptions(quiz.shuffleOptions);

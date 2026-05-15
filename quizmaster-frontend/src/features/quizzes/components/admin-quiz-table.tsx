@@ -233,7 +233,7 @@ export function AdminQuizTable({
                             variant="outline"
                             size="sm"
                             disabled={isMutating}
-                            onClick={() => onDelete(quiz)}
+                            onClick={() => onDelete?.(quiz)}
                           >
                             <Trash2 className="size-4" />
                             Delete
@@ -246,7 +246,7 @@ export function AdminQuizTable({
                             variant="outline"
                             size="sm"
                             disabled={isMutating}
-                            onClick={() => onRestore(quiz)}
+                            onClick={() => onRestore?.(quiz)}
                           >
                             <RotateCcw className="size-4" />
                             Restore
@@ -257,7 +257,7 @@ export function AdminQuizTable({
                             variant="outline"
                             size="sm"
                             disabled={isMutating}
-                            onClick={() => onPermanentDelete(quiz)}
+                            onClick={() => onPermanentDelete?.(quiz)}
                           >
                             <XCircle className="size-4" />
                             Delete forever
