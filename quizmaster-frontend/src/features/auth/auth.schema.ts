@@ -29,14 +29,15 @@ export const registerSchema = z
 
 export type RegisterFormValues = z.infer<typeof registerSchema>;
 
-export const forgotPasswordSchema = z.object({
-  email: z.string().min(1, "Vui lòng nhập email").email("Email không hợp lệ"),
-});
-
-export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
-
 export const resetPasswordSchema = z
   .object({
+    email: z.string().min(1, "Vui lòng nhập email").email("Email không hợp lệ"),
+
+    recoveryCode: z
+      .string()
+      .min(1, "Vui lòng nhập mã khôi phục")
+      .min(8, "Mã khôi phục không hợp lệ"),
+
     newPassword: z
       .string()
       .min(1, "Vui lòng nhập mật khẩu mới")

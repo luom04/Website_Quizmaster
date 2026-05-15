@@ -10,17 +10,22 @@ export type RegisterRequest = {
   password: string;
 };
 
-export type ForgotPasswordRequest = {
-  email: string;
-};
-
 export type ResetPasswordRequest = {
-  token: string;
+  email: string;
+  recoveryCode: string;
   newPassword: string;
 };
 
 export type AuthTokenData = {
   access_token: string;
+};
+export type RegisterAuthData = {
+  recoveryCode: string;
+};
+
+export type ResetPasswordData = {
+  message: string;
+  recoveryCode: string;
 };
 
 export type AuthUser = User;

@@ -10,7 +10,7 @@ import type {
   AdminUser,
   AdminUsersQueryParams,
   UpdateMeRequest,
-  UserProfile,
+  User,
 } from "@/types/user";
 
 const USERS_ENDPOINTS = {
@@ -23,7 +23,7 @@ const USERS_ENDPOINTS = {
 
 export const usersApi = {
   async getMe() {
-    const response = await api.get<ApiSuccessResponse<UserProfile>>(
+    const response = await api.get<ApiSuccessResponse<User>>(
       USERS_ENDPOINTS.ME,
     );
 
@@ -31,7 +31,7 @@ export const usersApi = {
   },
 
   async updateMe(payload: UpdateMeRequest) {
-    const response = await api.patch<ApiSuccessResponse<UserProfile>>(
+    const response = await api.patch<ApiSuccessResponse<User>>(
       USERS_ENDPOINTS.ME,
       payload,
     );
@@ -43,7 +43,7 @@ export const usersApi = {
     const formData = new FormData();
     formData.append("avatar", file, file.name);
 
-    const response = await api.patch<ApiSuccessResponse<UserProfile>>(
+    const response = await api.patch<ApiSuccessResponse<User>>(
       USERS_ENDPOINTS.ME_AVATAR,
       formData,
       {

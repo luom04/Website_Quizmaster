@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { Loader2 } from "lucide-react";
+import { CheckCircle2, Copy, Loader2, ShieldCheck } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -9,7 +10,6 @@ import { PasswordField } from "@/components/forms/password-field";
 import { TextField } from "@/components/forms/text-field";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/config/routes";
-import { authApi } from "@/features/auth/auth.api";
 import { useRegister } from "@/features/auth/auth.hooks";
 import {
   registerSchema,
@@ -17,8 +17,6 @@ import {
 } from "@/features/auth/auth.schema";
 import { AuthCard } from "@/features/auth/components/auth-card";
 import { getApiErrorMessage } from "@/lib/axios";
-import { getAuthenticatedRedirectPath } from "@/lib/auth-redirect";
-import { useAuthStore } from "@/stores/auth.store";
 
 function getRegisterErrorMessage(error: unknown) {
   if (axios.isAxiosError(error) && error.response?.status === 409) {
@@ -34,7 +32,9 @@ function getRegisterErrorMessage(error: unknown) {
 export function RegisterPage() {
   const navigate = useNavigate();
   const registerMutation = useRegister();
-  const setUser = useAuthStore((state) => state.setUser);
+
+  const [recoveryCode, setRecoveryCode] = useState<string | null>(null);
+  const [hasCopied, setHasCopied] = useState(false);
 
   const {
     register,
@@ -51,86 +51,168 @@ export function RegisterPage() {
 
   async function onSubmit(values: RegisterFormValues) {
     try {
-      await registerMutation.mutateAsync({
+      const data = await registerMutation.mutateAsync({
         email: values.email,
         password: values.password,
       });
 
-      const currentUser = await authApi.getCurrentUser();
-      setUser(currentUser);
-
-      toast.success("Tạo tài khoản thành công");
-
-      navigate(getAuthenticatedRedirectPath(currentUser.role), {
-        replace: true,
-      });
+      setRecoveryCode(data.recoveryCode);
+      toast.success("Tạo tài khoản thành công. Hãy lưu mã khôi phục.");
     } catch (error) {
       toast.error(getRegisterErrorMessage(error));
     }
   }
 
+  async function handleCopyRecoveryCode() {
+    if (!recoveryCode) return;
+
+    try {
+      await navigator.clipboard.writeText(recoveryCode);
+      setHasCopied(true);
+      toast.success("Đã copy mã khôi phục.");
+    } catch {
+      toast.error("Không thể copy mã. Vui lòng sao chép thủ công.");
+    }
+  }
+
+  function handleConfirmSaved() {
+    navigate(ROUTES.AUTH.LOGIN, { replace: true });
+  }
+
   const isSubmitting = registerMutation.isPending;
 
   return (
-    <AuthCard
-      eyebrow="Get started"
-      title="Tạo tài khoản"
-      description="Đăng ký tài khoản Quizmaster để bắt đầu làm quiz và theo dõi kết quả học tập của bạn."
-      footer={
-        <>
-          Đã có tài khoản?{" "}
-          <Link
-            to={ROUTES.AUTH.LOGIN}
-            className="font-medium text-primary underline-offset-4 hover:underline"
+    <>
+      <AuthCard
+        eyebrow="Start your quiz journey"
+        title="Tạo tài khoản QuizMaster"
+        description="Đăng ký để lưu lịch sử làm bài, theo dõi kết quả và tham gia các bài quiz phù hợp."
+        footer={
+          <p className="text-sm text-muted-foreground">
+            Đã có tài khoản?{" "}
+            <Link
+              to={ROUTES.AUTH.LOGIN}
+              className="font-medium text-foreground underline underline-offset-4"
+            >
+              Đăng nhập
+            </Link>
+          </p>
+        }
+      >
+        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+          <TextField
+            id="email"
+            label="Email"
+            type="email"
+            autoComplete="email"
+            placeholder="you@example.com"
+            disabled={isSubmitting || Boolean(recoveryCode)}
+            error={errors.email?.message}
+            {...register("email")}
+          />
+
+          <PasswordField
+            id="password"
+            label="Mật khẩu"
+            autoComplete="new-password"
+            placeholder="Nhập mật khẩu"
+            disabled={isSubmitting || Boolean(recoveryCode)}
+            error={errors.password?.message}
+            {...register("password")}
+          />
+
+          <PasswordField
+            id="confirmPassword"
+            label="Xác nhận mật khẩu"
+            autoComplete="new-password"
+            placeholder="Nhập lại mật khẩu"
+            disabled={isSubmitting || Boolean(recoveryCode)}
+            error={errors.confirmPassword?.message}
+            {...register("confirmPassword")}
+          />
+
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isSubmitting || Boolean(recoveryCode)}
           >
-            Đăng nhập
-          </Link>
-        </>
-      }
-    >
-      <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
-        <TextField
-          id="email"
-          label="Email"
-          type="email"
-          placeholder="you@example.com"
-          autoComplete="email"
-          disabled={isSubmitting}
-          error={errors.email?.message}
-          {...register("email")}
-        />
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Đang tạo tài khoản...
+              </>
+            ) : (
+              "Tạo tài khoản"
+            )}
+          </Button>
+        </form>
+      </AuthCard>
 
-        <PasswordField
-          id="password"
-          label="Mật khẩu"
-          placeholder="Tạo mật khẩu"
-          autoComplete="new-password"
-          disabled={isSubmitting}
-          error={errors.password?.message}
-          {...register("password")}
-        />
+      {recoveryCode ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-3xl border bg-card p-6 shadow-2xl">
+            <div className="mb-5 flex items-start gap-3">
+              <div className="rounded-2xl bg-muted p-3">
+                <ShieldCheck className="h-6 w-6" />
+              </div>
 
-        <PasswordField
-          id="confirmPassword"
-          label="Xác nhận mật khẩu"
-          placeholder="Nhập lại mật khẩu"
-          autoComplete="new-password"
-          disabled={isSubmitting}
-          error={errors.confirmPassword?.message}
-          {...register("confirmPassword")}
-        />
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Account recovery
+                </p>
+                <h2 className="text-xl font-semibold tracking-tight">
+                  Lưu mã khôi phục
+                </h2>
+              </div>
+            </div>
 
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? (
-            <>
-              <Loader2 className="size-4 animate-spin" />
-              Đang tạo tài khoản...
-            </>
-          ) : (
-            "Tạo tài khoản"
-          )}
-        </Button>
-      </form>
-    </AuthCard>
+            <div className="space-y-4">
+              <p className="text-sm leading-6 text-muted-foreground">
+                Đây là mã khôi phục tài khoản của bạn. Mã này chỉ hiển thị một
+                lần, hãy copy hoặc lưu lại trước khi tiếp tục.
+              </p>
+
+              <div className="rounded-2xl border border-dashed bg-muted/50 p-4">
+                <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  Recovery Code
+                </p>
+
+                <div className="break-all rounded-xl bg-background px-4 py-3 text-center font-mono text-lg font-semibold tracking-wide">
+                  {recoveryCode}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border bg-background p-4 text-sm text-muted-foreground">
+                <div className="mb-2 flex items-center gap-2 font-medium text-foreground">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Lưu ý
+                </div>
+
+                <p>
+                  Hệ thống chỉ lưu bản mã hóa của mã này trong database. Nếu bạn
+                  làm mất mã, bạn sẽ không thể dùng chức năng khôi phục mật khẩu
+                  bằng recovery code cũ.
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCopyRecoveryCode}
+                >
+                  <Copy className="mr-2 h-4 w-4" />
+                  {hasCopied ? "Đã copy" : "Copy mã"}
+                </Button>
+
+                <Button type="button" onClick={handleConfirmSaved}>
+                  Tôi đã lưu mã
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </>
   );
 }

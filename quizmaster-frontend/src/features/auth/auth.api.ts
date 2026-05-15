@@ -2,9 +2,10 @@ import { api } from "@/lib/axios";
 import type { ApiSuccessResponse } from "@/types/api";
 import type {
   AuthTokenData,
-  ForgotPasswordRequest,
   LoginRequest,
+  RegisterAuthData,
   RegisterRequest,
+  ResetPasswordData,
   ResetPasswordRequest,
 } from "@/types/auth";
 
@@ -15,7 +16,6 @@ const AUTH_ENDPOINTS = {
   REGISTER: "/auth/register",
   LOGOUT: "/auth/logout",
   REFRESH: "/auth/refresh",
-  FORGOT_PASSWORD: "/auth/forgot-password",
   RESET_PASSWORD: "/auth/reset-password",
   ME: "/users/me",
 } as const;
@@ -31,7 +31,7 @@ export const authApi = {
   },
 
   async register(payload: RegisterRequest) {
-    const response = await api.post<ApiSuccessResponse<AuthTokenData>>(
+    const response = await api.post<ApiSuccessResponse<RegisterAuthData>>(
       AUTH_ENDPOINTS.REGISTER,
       payload,
     );
@@ -55,17 +55,8 @@ export const authApi = {
     return response.data.data;
   },
 
-  async forgotPassword(payload: ForgotPasswordRequest) {
-    const response = await api.post<ApiSuccessResponse<null>>(
-      AUTH_ENDPOINTS.FORGOT_PASSWORD,
-      payload,
-    );
-
-    return response.data;
-  },
-
   async resetPassword(payload: ResetPasswordRequest) {
-    const response = await api.post<ApiSuccessResponse<null>>(
+    const response = await api.post<ApiSuccessResponse<ResetPasswordData>>(
       AUTH_ENDPOINTS.RESET_PASSWORD,
       payload,
     );
