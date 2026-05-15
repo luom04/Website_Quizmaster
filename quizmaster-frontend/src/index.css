@@ -173,3 +173,134 @@
     animation: none;
   }
 }
+
+@layer components {
+  .qm-page-shell {
+    width: min(100% - 2rem, 1120px);
+    margin-inline: auto;
+  }
+
+  .qm-page-shell-wide {
+    width: min(100% - 2rem, 1280px);
+    margin-inline: auto;
+  }
+
+  .qm-page-section {
+    padding-block: 1.5rem;
+  }
+
+  .qm-soft-card {
+    border: 1px solid color-mix(in oklch, var(--border) 82%, transparent);
+    border-radius: var(--radius-2xl);
+    background: linear-gradient(
+      180deg,
+      color-mix(in oklch, var(--card) 96%, white 4%),
+      var(--card)
+    );
+    box-shadow:
+      0 1px 2px color-mix(in oklch, var(--foreground) 8%, transparent),
+      0 12px 32px color-mix(in oklch, var(--foreground) 5%, transparent);
+  }
+
+  .qm-soft-card-hover {
+    transition:
+      transform 180ms ease,
+      border-color 180ms ease,
+      box-shadow 180ms ease,
+      background-color 180ms ease;
+  }
+
+  .qm-soft-card-hover:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in oklch, var(--foreground) 16%, var(--border));
+    box-shadow:
+      0 4px 10px color-mix(in oklch, var(--foreground) 8%, transparent),
+      0 18px 44px color-mix(in oklch, var(--foreground) 7%, transparent);
+  }
+
+  .qm-muted-panel {
+    border: 1px solid color-mix(in oklch, var(--border) 76%, transparent);
+    border-radius: var(--radius-xl);
+    background: color-mix(in oklch, var(--muted) 58%, transparent);
+  }
+
+  .qm-section-eyebrow {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    gap: 0.375rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklch, var(--border) 80%, transparent);
+    background: color-mix(in oklch, var(--muted) 60%, transparent);
+    padding: 0.25rem 0.625rem;
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1rem;
+  }
+
+  .qm-section-title {
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+
+  .qm-section-description {
+    color: var(--muted-foreground);
+    text-wrap: pretty;
+  }
+
+  .qm-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklch, var(--border) 78%, transparent);
+    background: color-mix(in oklch, var(--muted) 64%, transparent);
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1rem;
+    color: var(--foreground);
+  }
+
+  .qm-danger-panel {
+    border: 1px solid color-mix(in oklch, var(--destructive) 28%, var(--border));
+    border-radius: var(--radius-xl);
+    background: color-mix(in oklch, var(--destructive) 8%, transparent);
+    color: var(--destructive);
+  }
+
+  .qm-exam-focus-bg {
+    background:
+      radial-gradient(
+        circle at top left,
+        color-mix(in oklch, var(--primary) 8%, transparent),
+        transparent 34rem
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in oklch, var(--muted) 42%, transparent),
+        var(--background) 22rem
+      );
+  }
+}
+
+@layer utilities {
+  .qm-text-pretty {
+    text-wrap: pretty;
+  }
+
+  .qm-text-balance {
+    text-wrap: balance;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .qm-soft-card-hover {
+    transition: none;
+  }
+
+  .qm-soft-card-hover:hover {
+    transform: none;
+  }
+}
