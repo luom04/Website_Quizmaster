@@ -1,7 +1,17 @@
 import { useState } from "react";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { CheckCircle2, Copy, Loader2, ShieldCheck } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowRight,
+  CheckCircle2,
+  Copy,
+  KeyRound,
+  Loader2,
+  ShieldCheck,
+  UserPlus,
+} from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -9,13 +19,16 @@ import { toast } from "sonner";
 import { PasswordField } from "@/components/forms/password-field";
 import { TextField } from "@/components/forms/text-field";
 import { Button } from "@/components/ui/button";
+
 import { ROUTES } from "@/config/routes";
+
 import { useRegister } from "@/features/auth/auth.hooks";
 import {
   registerSchema,
   type RegisterFormValues,
 } from "@/features/auth/auth.schema";
 import { AuthCard } from "@/features/auth/components/auth-card";
+
 import { getApiErrorMessage } from "@/lib/axios";
 
 function getRegisterErrorMessage(error: unknown) {
@@ -84,65 +97,77 @@ export function RegisterPage() {
   return (
     <>
       <AuthCard
-        eyebrow="Start your quiz journey"
-        title="Tạo tài khoản QuizMaster"
-        description="Đăng ký để lưu lịch sử làm bài, theo dõi kết quả và tham gia các bài quiz phù hợp."
+        eyebrow="Create account"
+        title="Tạo tài khoản"
+        description="Tạo tài khoản Quizmaster để bắt đầu làm quiz, lưu lịch sử bài làm và xem lại kết quả sau khi nộp."
         footer={
-          <p className="text-sm text-muted-foreground">
+          <>
             Đã có tài khoản?{" "}
             <Link
               to={ROUTES.AUTH.LOGIN}
-              className="font-medium text-foreground underline underline-offset-4"
+              className="font-semibold text-primary underline-offset-4 hover:underline"
             >
               Đăng nhập
             </Link>
-          </p>
+          </>
         }
       >
-        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-          <TextField
-            id="email"
-            label="Email"
-            type="email"
-            autoComplete="email"
-            placeholder="you@example.com"
-            disabled={isSubmitting || Boolean(recoveryCode)}
-            error={errors.email?.message}
-            {...register("email")}
-          />
+        <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
+          <div className="space-y-4">
+            <TextField
+              id="email"
+              label="Email"
+              type="email"
+              placeholder="you@example.com"
+              autoComplete="email"
+              disabled={isSubmitting}
+              error={errors.email?.message}
+              {...register("email")}
+            />
 
-          <PasswordField
-            id="password"
-            label="Mật khẩu"
-            autoComplete="new-password"
-            placeholder="Nhập mật khẩu"
-            disabled={isSubmitting || Boolean(recoveryCode)}
-            error={errors.password?.message}
-            {...register("password")}
-          />
+            <PasswordField
+              id="password"
+              label="Mật khẩu"
+              placeholder="Tạo mật khẩu"
+              autoComplete="new-password"
+              disabled={isSubmitting}
+              error={errors.password?.message}
+              {...register("password")}
+            />
 
-          <PasswordField
-            id="confirmPassword"
-            label="Xác nhận mật khẩu"
-            autoComplete="new-password"
-            placeholder="Nhập lại mật khẩu"
-            disabled={isSubmitting || Boolean(recoveryCode)}
-            error={errors.confirmPassword?.message}
-            {...register("confirmPassword")}
-          />
+            <PasswordField
+              id="confirmPassword"
+              label="Xác nhận mật khẩu"
+              placeholder="Nhập lại mật khẩu"
+              autoComplete="new-password"
+              disabled={isSubmitting}
+              error={errors.confirmPassword?.message}
+              {...register("confirmPassword")}
+            />
+          </div>
+
+          <div className="rounded-2xl border bg-muted/25 p-4 text-xs leading-5 text-muted-foreground">
+            Sau khi tạo tài khoản, hệ thống sẽ hiển thị một mã khôi phục. Bạn
+            cần lưu mã này để có thể đặt lại mật khẩu trong tương lai.
+          </div>
 
           <Button
             type="submit"
-            className="w-full"
-            disabled={isSubmitting || Boolean(recoveryCode)}
+            size="lg"
+            className="h-11 w-full cursor-pointer rounded-2xl font-semibold shadow-sm transition-all hover:-translate-y-0.5"
+            disabled={isSubmitting}
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="size-4 animate-spin" />
                 Đang tạo tài khoản...
               </>
             ) : (
-              "Tạo tài khoản"
+              <>
+                <UserPlus className="size-4" />
+                Tạo tài khoản
+                <ArrowRight className="size-4" />
+              </>
             )}
           </Button>
         </form>
@@ -150,63 +175,86 @@ export function RegisterPage() {
 
       {recoveryCode ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 px-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-3xl border bg-card p-6 shadow-2xl">
-            <div className="mb-5 flex items-start gap-3">
-              <div className="rounded-2xl bg-muted p-3">
-                <ShieldCheck className="h-6 w-6" />
-              </div>
+          <div className="qm-soft-card w-full max-w-xl overflow-hidden bg-card shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="border-b bg-muted/25 p-6 sm:p-8">
+              <div className="flex items-start gap-4">
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-300">
+                  <CheckCircle2 className="size-6" />
+                </div>
 
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Account recovery
-                </p>
-                <h2 className="text-xl font-semibold tracking-tight">
-                  Lưu mã khôi phục
-                </h2>
+                <div>
+                  <p className="qm-section-eyebrow">
+                    <KeyRound className="size-3.5" />
+                    Account recovery
+                  </p>
+
+                  <h2 className="qm-section-title mt-4 text-2xl font-bold tracking-tight">
+                    Lưu mã khôi phục
+                  </h2>
+
+                  <p className="qm-section-description mt-2 text-sm leading-6">
+                    Mã này chỉ hiển thị một lần. Hãy copy hoặc lưu lại trước khi
+                    tiếp tục.
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div className="space-y-4">
-              <p className="text-sm leading-6 text-muted-foreground">
-                Đây là mã khôi phục tài khoản của bạn. Mã này chỉ hiển thị một
-                lần, hãy copy hoặc lưu lại trước khi tiếp tục.
-              </p>
+            <div className="space-y-5 p-6 sm:p-8">
+              <div className="rounded-2xl border bg-muted/25 p-4">
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                    Recovery code
+                  </p>
 
-              <div className="rounded-2xl border border-dashed bg-muted/50 p-4">
-                <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Recovery Code
-                </p>
+                  <ShieldCheck className="size-4 text-primary" />
+                </div>
 
-                <div className="break-all rounded-xl bg-background px-4 py-3 text-center font-mono text-lg font-semibold tracking-wide">
-                  {recoveryCode}
+                <div className="rounded-xl border bg-background px-4 py-3">
+                  <p className="break-all font-mono text-sm font-semibold leading-6 text-foreground">
+                    {recoveryCode}
+                  </p>
                 </div>
               </div>
 
-              <div className="rounded-2xl border bg-background p-4 text-sm text-muted-foreground">
-                <div className="mb-2 flex items-center gap-2 font-medium text-foreground">
-                  <CheckCircle2 className="h-4 w-4" />
-                  Lưu ý
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/25 dark:text-amber-300">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="mt-0.5 size-5 shrink-0" />
+                  <p>
+                    Hệ thống chỉ lưu bản mã hóa của mã này trong database. Nếu
+                    bạn làm mất mã, bạn sẽ không thể dùng recovery code cũ để
+                    khôi phục mật khẩu.
+                  </p>
                 </div>
-
-                <p>
-                  Hệ thống chỉ lưu bản mã hóa của mã này trong database. Nếu bạn
-                  làm mất mã, bạn sẽ không thể dùng chức năng khôi phục mật khẩu
-                  bằng recovery code cũ.
-                </p>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <Button
                   type="button"
                   variant="outline"
+                  className="h-11 rounded-2xl bg-background/75 font-semibold"
                   onClick={handleCopyRecoveryCode}
                 >
-                  <Copy className="mr-2 h-4 w-4" />
-                  {hasCopied ? "Đã copy" : "Copy mã"}
+                  {hasCopied ? (
+                    <>
+                      <CheckCircle2 className="size-4" />
+                      Đã copy
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="size-4" />
+                      Copy mã
+                    </>
+                  )}
                 </Button>
 
-                <Button type="button" onClick={handleConfirmSaved}>
+                <Button
+                  type="button"
+                  className="h-11 rounded-2xl font-semibold shadow-sm"
+                  onClick={handleConfirmSaved}
+                >
                   Tôi đã lưu mã
+                  <ArrowRight className="size-4" />
                 </Button>
               </div>
             </div>
