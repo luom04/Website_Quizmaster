@@ -7,6 +7,7 @@ import {
   Loader2,
   LockKeyhole,
   Play,
+  ShieldCheck,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -160,51 +161,70 @@ export function QuizPasswordPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
-      <Button asChild variant="ghost" className="w-fit">
+    <div className="qm-page-shell max-w-3xl py-6 animate-in fade-in duration-500">
+      <Button
+        asChild
+        variant="ghost"
+        className="mb-4 w-fit rounded-xl px-0 text-muted-foreground hover:bg-transparent hover:text-foreground"
+      >
         <Link to={getQuizDetailPath(quizId)}>
           <ArrowLeft className="size-4" />
           Quay lại chi tiết
         </Link>
       </Button>
 
-      <Card className="rounded-3xl border-border/70 shadow-sm">
-        <CardHeader className="space-y-4">
+      <Card className="qm-soft-card overflow-hidden border-0">
+        <CardHeader className="space-y-5 border-b bg-muted/25 p-6 sm:p-8">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline">
+            <Badge
+              variant="outline"
+              className="rounded-full border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-400"
+            >
               <LockKeyhole className="size-3.5" />
-              Password required
+              Cần mật khẩu
             </Badge>
 
-            <Badge variant="secondary">{quiz.status || "Available"}</Badge>
+            <Badge
+              variant="outline"
+              className="rounded-full border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300"
+            >
+              {quiz.status === "ONGOING"
+                ? "Ongoing"
+                : quiz.status || "Available"}
+            </Badge>
           </div>
 
           <div>
-            <CardTitle className="text-2xl font-semibold tracking-tight sm:text-3xl">
+            <div className="mb-4 flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <ShieldCheck className="size-6" />
+            </div>
+
+            <CardTitle className="qm-section-title text-2xl font-bold sm:text-3xl">
               {quiz.title}
             </CardTitle>
 
-            <CardDescription className="mt-3 leading-6">
+            <CardDescription className="qm-section-description mt-3 leading-7">
               Quiz này yêu cầu mật khẩu trước khi bắt đầu. Nhập mật khẩu được
-              cung cấp để tiếp tục làm bài.
+              người tạo quiz cung cấp để tiếp tục làm bài.
             </CardDescription>
           </div>
         </CardHeader>
 
-        <CardContent>
-          <div className="mb-5 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border bg-muted/30 p-4">
-              <p className="text-xs text-muted-foreground">Category</p>
+        <CardContent className="p-6 sm:p-8">
+          <div className="mb-6 grid gap-3 sm:grid-cols-2">
+            <div className="qm-muted-panel p-4">
+              <p className="text-xs text-muted-foreground">Danh mục</p>
               <p className="mt-1 text-sm font-medium">
                 {quiz.category?.name || "General"}
               </p>
             </div>
 
-            <div className="rounded-2xl border bg-muted/30 p-4">
+            <div className="qm-muted-panel p-4">
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Clock3 className="size-3.5" />
-                Duration
+                Thời lượng
               </div>
+
               <p className="mt-1 text-sm font-medium">
                 {quiz.durationMinutes} phút
               </p>
@@ -215,16 +235,23 @@ export function QuizPasswordPage() {
             <PasswordField
               id="password"
               label="Mật khẩu quiz"
-              placeholder="Nhập mật khẩu"
+              placeholder="Nhập mật khẩu để mở bài"
               autoComplete="current-password"
               disabled={isSubmitting}
               error={errors.password?.message}
               {...register("password")}
             />
 
+            <div className="rounded-2xl border bg-muted/25 p-4 text-sm text-muted-foreground">
+              Mật khẩu chỉ dùng để xác thực quyền truy cập quiz. Sau khi xác
+              thực thành công, hệ thống sẽ tự động chuyển bạn vào màn hình làm
+              bài.
+            </div>
+
             <Button
               type="submit"
-              className="w-full cursor-pointer"
+              size="lg"
+              className="h-11 w-full cursor-pointer rounded-2xl font-semibold shadow-sm transition-all hover:-translate-y-0.5"
               disabled={isSubmitting}
             >
               {isSubmitting ? (

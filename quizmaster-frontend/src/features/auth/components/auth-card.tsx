@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Sparkles } from "lucide-react";
 
 import {
   Card,
@@ -7,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
 import { cn } from "@/lib/utils";
 
 type AuthCardProps = {
@@ -29,30 +31,35 @@ export function AuthCard({
   return (
     <Card
       className={cn(
-        "border-border/70 bg-card/95 shadow-sm backdrop-blur",
-        "rounded-3xl",
+        "qm-soft-card relative overflow-hidden border-0 bg-card/95 backdrop-blur-xl",
         className,
       )}
     >
-      <CardHeader className="space-y-3 px-6 pb-5 pt-6 sm:px-7 sm:pt-7">
-        <div>
-          <p className="text-sm font-medium text-muted-foreground">{eyebrow}</p>
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary/20 via-primary to-primary/20" />
 
-          <CardTitle className="mt-2 text-2xl font-semibold tracking-tight">
+      <CardHeader className="space-y-4 px-6 pb-5 pt-7 sm:px-8 sm:pt-8">
+        <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-sm">
+          <Sparkles className="size-5" />
+        </div>
+
+        <div>
+          <p className="qm-section-eyebrow">{eyebrow}</p>
+
+          <CardTitle className="qm-section-title mt-4 text-2xl font-bold tracking-tight sm:text-3xl">
             {title}
           </CardTitle>
         </div>
 
-        <CardDescription className="text-sm leading-6">
+        <CardDescription className="qm-section-description text-sm leading-6">
           {description}
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="px-6 pb-6 sm:px-7 sm:pb-7">
+      <CardContent className="px-6 pb-6 sm:px-8 sm:pb-8">
         {children}
 
         {footer ? (
-          <div className="mt-6 text-center text-sm text-muted-foreground">
+          <div className="mt-6 rounded-2xl border bg-muted/25 px-4 py-3 text-center text-sm text-muted-foreground">
             {footer}
           </div>
         ) : null}

@@ -35,22 +35,33 @@ function getResultPath(attemptId: string) {
 
 function TakingQuizLoading() {
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-      <div className="space-y-4">
-        {Array.from({ length: 3 }).map((_, index) => (
-          <div key={index} className="rounded-3xl border bg-card p-6 shadow-sm">
-            <Skeleton className="h-6 w-32 rounded-full" />
-            <Skeleton className="mt-5 h-6 w-3/4" />
-            <div className="mt-5 space-y-3">
-              <Skeleton className="h-12 rounded-2xl" />
-              <Skeleton className="h-12 rounded-2xl" />
-              <Skeleton className="h-12 rounded-2xl" />
-            </div>
-          </div>
-        ))}
-      </div>
+    <div className="-mx-4 -my-8 min-h-[calc(100vh-4rem)] qm-exam-focus-bg px-4 py-8 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+      <div className="qm-page-shell-wide space-y-6">
+        <section className="qm-soft-card p-5 sm:p-6">
+          <Skeleton className="h-6 w-36 rounded-full" />
+          <Skeleton className="mt-5 h-8 w-64 max-w-full" />
+          <Skeleton className="mt-3 h-5 w-[520px] max-w-full" />
+        </section>
 
-      <Skeleton className="h-64 rounded-3xl" />
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+          <div className="space-y-4">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div key={index} className="qm-soft-card p-6">
+                <Skeleton className="h-6 w-32 rounded-full" />
+                <Skeleton className="mt-5 h-6 w-3/4" />
+
+                <div className="mt-5 space-y-3">
+                  <Skeleton className="h-14 rounded-2xl" />
+                  <Skeleton className="h-14 rounded-2xl" />
+                  <Skeleton className="h-14 rounded-2xl" />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <Skeleton className="h-80 rounded-3xl" />
+        </div>
+      </div>
     </div>
   );
 }
@@ -301,54 +312,97 @@ export function TakingQuizPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <section className="rounded-3xl border bg-card p-5 shadow-sm sm:p-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <p className="inline-flex items-center gap-2 rounded-full border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
-              <BookOpenCheck className="size-3.5" />
-              Attempt #{attempt.attemptNumber}
-            </p>
+    <div className="-mx-4 -my-8 min-h-[calc(100vh-4rem)] qm-exam-focus-bg px-4 py-8 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+      <div className="qm-page-shell-wide space-y-6 animate-in fade-in duration-500">
+        <section className="qm-soft-card overflow-hidden">
+          <div className="border-b bg-muted/25 p-5 sm:p-6">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+              <div className="min-w-0">
+                <p className="qm-section-eyebrow">
+                  <BookOpenCheck className="size-3.5" />
+                  Attempt #{attempt.attemptNumber}
+                </p>
 
-            <h1 className="mt-4 text-2xl font-semibold tracking-tight sm:text-3xl">
-              Đang làm bài quiz
-            </h1>
+                <h1 className="qm-section-title mt-4 text-2xl font-bold tracking-tight sm:text-3xl">
+                  {quiz?.title || "Đang làm bài quiz"}
+                </h1>
 
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-              Chọn đáp án cho từng câu hỏi. Với câu multiple choice, bạn có thể
-              chọn nhiều đáp án trước khi nộp bài.
-            </p>
+                <p className="qm-section-description mt-2 max-w-2xl text-sm leading-6">
+                  Chọn đáp án cho từng câu hỏi. Với câu multiple choice, bạn có
+                  thể chọn nhiều đáp án trước khi nộp bài.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3 sm:flex-row lg:items-center">
+                <div className="rounded-2xl border bg-background/75 px-4 py-3">
+                  <p className="text-xs text-muted-foreground">Tiến độ</p>
+                  <p className="mt-0.5 text-sm font-semibold">
+                    {answeredQuestions}/{questions.length} câu đã trả lời
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border bg-background/75 px-4 py-3">
+                  <p className="text-xs text-muted-foreground">Còn lại</p>
+                  <p className="mt-0.5 text-sm font-semibold">
+                    {Math.max(questions.length - answeredQuestions, 0)} câu
+                  </p>
+                </div>
+
+                {submitAttemptMutation.isPending ? (
+                  <div className="flex items-center gap-2 rounded-2xl border bg-background/75 px-4 py-3 text-sm text-muted-foreground">
+                    <Loader2 className="size-4 animate-spin" />
+                    Đang xử lý...
+                  </div>
+                ) : null}
+              </div>
+            </div>
           </div>
 
-          {submitAttemptMutation.isPending ? (
-            <div className="flex items-center gap-2 rounded-2xl border bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
-              <Loader2 className="size-4 animate-spin" />
-              Đang xử lý...
+          <div className="grid gap-3 bg-background/50 p-4 sm:grid-cols-3 sm:p-5">
+            <div className="rounded-2xl border bg-card/80 p-4">
+              <p className="text-xs text-muted-foreground">Số câu hỏi</p>
+              <p className="mt-1 text-xl font-semibold">{questions.length}</p>
             </div>
-          ) : null}
-        </div>
-      </section>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-        <div className="space-y-4">
-          {questions.map((question, index) => (
-            <TakingQuestionCard
-              key={question.id}
-              question={question}
-              questionNumber={index + 1}
-              selectedOptionIds={answers[question.id] ?? []}
-              onChange={updateAnswer}
+            <div className="rounded-2xl border bg-card/80 p-4">
+              <p className="text-xs text-muted-foreground">Đã hoàn thành</p>
+              <p className="mt-1 text-xl font-semibold">{answeredQuestions}</p>
+            </div>
+
+            <div className="rounded-2xl border bg-card/80 p-4">
+              <p className="text-xs text-muted-foreground">Trạng thái</p>
+              <p className="mt-1 text-xl font-semibold">
+                {answeredQuestions === questions.length
+                  ? "Sẵn sàng nộp"
+                  : "Đang làm"}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+          <div className="space-y-4">
+            {questions.map((question, index) => (
+              <TakingQuestionCard
+                key={question.id}
+                question={question}
+                questionNumber={index + 1}
+                selectedOptionIds={answers[question.id] ?? []}
+                onChange={updateAnswer}
+              />
+            ))}
+          </div>
+
+          <div className="xl:sticky xl:top-24 xl:self-start">
+            <AttemptProgressPanel
+              totalQuestions={questions.length}
+              answeredQuestions={answeredQuestions}
+              remainingSeconds={remainingSeconds}
+              isSubmitting={submitAttemptMutation.isPending}
+              onSubmit={() => submitAttempt()}
             />
-          ))}
+          </div>
         </div>
-
-        <AttemptProgressPanel
-          totalQuestions={questions.length}
-          answeredQuestions={answeredQuestions}
-          remainingSeconds={remainingSeconds}
-          isSubmitting={submitAttemptMutation.isPending}
-          onSubmit={() => submitAttempt()}
-        />
       </div>
     </div>
   );
