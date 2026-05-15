@@ -115,13 +115,12 @@ export function QuizDetailPage() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      {/* Header Action: Tối ưu khoảng cách và bo góc nút */}
+    <div className="qm-page-shell space-y-6 py-6 animate-in fade-in duration-500">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <Button
           asChild
           variant="ghost"
-          className="w-fit rounded-xl hover:bg-primary/5 hover:text-primary transition-all"
+          className="w-fit rounded-xl px-0 text-muted-foreground hover:bg-transparent hover:text-foreground"
         >
           <Link to={getQuizListPath()} className="gap-2">
             <ArrowLeft className="size-4" />
@@ -131,7 +130,7 @@ export function QuizDetailPage() {
 
         <Button
           size="lg"
-          className="w-full sm:w-fit cursor-pointer rounded-2xl px-8 font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95"
+          className="h-11 w-full cursor-pointer rounded-2xl px-6 font-semibold shadow-sm transition-all hover:-translate-y-0.5 sm:w-fit"
           disabled={!canStartQuiz || startAttemptMutation.isPending}
           onClick={handleStartQuiz}
         >
@@ -143,27 +142,29 @@ export function QuizDetailPage() {
           ) : quiz.accessMode === "password_required" ? (
             <>
               <LockKeyhole className="size-4" />
-              Nhập mật khẩu để mở
+              Nhập mật khẩu để mở bài
             </>
           ) : (
             <>
               <Play className="size-4 fill-current" />
-              Bắt đầu làm bài ngay
+              Bắt đầu làm bài
             </>
           )}
         </Button>
       </div>
 
-      {/* Thông báo trạng thái: Bo góc 2xl đồng bộ */}
       {!canStartQuiz && (
-        <div className="flex items-center gap-3 rounded-2xl border border-amber-100 bg-amber-50/50 p-4 text-sm text-amber-700 dark:border-amber-900/30 dark:bg-amber-950/20 dark:text-amber-400">
-          <AlertCircle className="size-5 shrink-0" />
-          Quiz hiện chưa thể bắt đầu. Có thể bài thi đang tạm đóng hoặc chưa có
-          bộ câu hỏi chính thức.
+        <div className="qm-danger-panel flex items-start gap-3 p-4 text-sm">
+          <AlertCircle className="mt-0.5 size-5 shrink-0" />
+          <div>
+            <p className="font-medium">Quiz hiện chưa thể bắt đầu</p>
+            <p className="mt-1 text-destructive/80">
+              Có thể bài thi đang tạm đóng hoặc chưa có bộ câu hỏi chính thức.
+            </p>
+          </div>
         </div>
       )}
 
-      {/* Phần Detail Summary */}
       <QuizDetailSummary quiz={quiz} />
     </div>
   );
