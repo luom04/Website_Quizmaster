@@ -64,8 +64,6 @@ export function ResetPasswordPage() {
       toast.success(
         "Đặt lại mật khẩu thành công. Hãy lưu mã khôi phục mới của bạn.",
       );
-
-      handleGoToLogin();
     } catch (error) {
       toast.error(
         getApiErrorMessage(
