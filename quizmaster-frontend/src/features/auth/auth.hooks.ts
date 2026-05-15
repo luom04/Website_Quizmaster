@@ -20,13 +20,8 @@ export function useLogin() {
 }
 
 export function useRegister() {
-  const setAccessToken = useAuthStore((state) => state.setAccessToken);
-
   return useMutation({
     mutationFn: authApi.register,
-    onSuccess: (data) => {
-      setAccessToken(data.access_token);
-    },
   });
 }
 
@@ -61,12 +56,6 @@ export function useCurrentUser(options?: UseCurrentUserOptions) {
     queryKey: queryKeys.auth.me(),
     queryFn: authApi.getCurrentUser,
     enabled: options?.enabled ?? isAuthenticated,
-  });
-}
-
-export function useForgotPassword() {
-  return useMutation({
-    mutationFn: authApi.forgotPassword,
   });
 }
 

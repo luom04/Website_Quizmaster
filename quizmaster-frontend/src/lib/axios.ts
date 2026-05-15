@@ -13,7 +13,6 @@ const AUTH_ENDPOINTS = [
   "/auth/login",
   "/auth/register",
   "/auth/logout",
-  "/auth/forgot-password",
   "/auth/reset-password",
   "/auth/refresh",
 ];

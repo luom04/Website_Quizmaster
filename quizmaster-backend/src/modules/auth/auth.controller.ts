@@ -8,8 +8,8 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthDto } from './dto/auth.dto';
-import { Tokens } from './types/tokens.type';
+import { AuthDto, ResetPasswordDto } from './dto/auth.dto';
+import { Tokens, RegisterResponse } from './types/tokens.type';
 import { Public } from '../../common/decorators/public.decorator';
 import { GetCurrentUser } from '../../common/decorators/get-current-user.decorator';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
@@ -22,10 +22,9 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Public()
-  @UseInterceptors(SetCookieInterceptor)
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  register(@Body() dto: AuthDto): Promise<Tokens> {
+  register(@Body() dto: AuthDto): Promise<RegisterResponse> {
     return this.authService.register(dto);
   }
 
@@ -61,19 +60,13 @@ export class AuthController {
   }
 
   @Public()
-  @Post('forgot-password')
-  @HttpCode(HttpStatus.OK)
-  forgotPassword(@Body('email') email: string) {
-    return this.authService.forgotPassword(email);
-  }
-
-  @Public()
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
-  resetPassword(
-    @Body('token') token: string,
-    @Body('newPassword') newPassword: string,
-  ) {
-    return this.authService.resetPassword(token, newPassword);
+  resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(
+      dto.email,
+      dto.recoveryCode,
+      dto.newPassword,
+    );
   }
 }

@@ -2,42 +2,61 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuthDto } from './dto/auth.dto';
 import * as bcrypt from 'bcrypt';
-import { Tokens } from './types/tokens.type';
+import { Tokens, RegisterResponse } from './types/tokens.type';
 import { JwtService } from '@nestjs/jwt';
 import { Role } from '@prisma/client';
-import { MailService } from './mail.service';
-import { v4 as uuidv4 } from 'uuid';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-    private mailService: MailService,
   ) {}
 
-  async register(dto: AuthDto): Promise<Tokens> {
-    const hash = await bcrypt.hash(dto.password, 10);
+  private generateRecoveryCode(): string {
+    const part1 = randomBytes(2).toString('hex').toUpperCase();
+    const part2 = randomBytes(2).toString('hex').toUpperCase();
+    const part3 = randomBytes(2).toString('hex').toUpperCase();
+
+    return `QM-${part1}-${part2}-${part3}`;
+  }
+
+  private async hashRecoveryCode(recoveryCode: string): Promise<string> {
+    return bcrypt.hash(recoveryCode, 10);
+  }
+
+  private async verifyRecoveryCode(
+    recoveryCode: string,
+    recoveryCodeHash: string,
+  ): Promise<boolean> {
+    return bcrypt.compare(recoveryCode, recoveryCodeHash);
+  }
+
+  async register(dto: AuthDto): Promise<RegisterResponse> {
+    const passwordHash = await bcrypt.hash(dto.password, 10);
+    const recoveryCode = this.generateRecoveryCode();
+    const recoveryCodeHash = await this.hashRecoveryCode(recoveryCode);
+
     try {
-      const newUser = await this.prisma.user.create({
+      await this.prisma.user.create({
         data: {
           email: dto.email,
-          passwordHash: hash,
-          name: dto.email.split('@')[0], // Lấy phần trước @ làm tên mặc định
+          passwordHash,
+          recoveryCodeHash,
+          recoveryCodeUpdatedAt: new Date(),
+          name: dto.email.split('@')[0],
         },
       });
 
-      const tokens = await this.getTokens(
-        newUser.id,
-        newUser.email,
-        newUser.role,
-      );
-      await this.updateRtHash(newUser.id, tokens.refresh_token);
-      return tokens;
+      return {
+        recoveryCode,
+      };
     } catch (error) {
       if (error.code === 'P2002') {
         throw new ForbiddenException('Email already exists');
       }
+
       throw error;
     }
   }
@@ -119,7 +138,11 @@ export class AuthService {
     return { access_token: at, refresh_token: rt };
   }
 
-  async forgotPassword(email: string) {
+  async resetPassword(
+    email: string,
+    recoveryCode: string,
+    newPassword: string,
+  ) {
     const user = await this.prisma.user.findFirst({
       where: {
         email,
@@ -127,51 +150,43 @@ export class AuthService {
         isActive: true,
       },
     });
-    if (!user) return; // Không tiết lộ email có tồn tại hay không
 
-    const token = uuidv4();
-
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // Token có hạn 15 phút
-
-    await this.prisma.passwordReset.upsert({
-      where: { userId: user.id },
-      update: { token, expiresAt },
-      create: {
-        userId: user.id,
-        token,
-        expiresAt,
-      },
-    });
-    await this.mailService.sendResetPasswordEmail(email, token);
-  }
-
-  async resetPassword(token: string, newPassword: string) {
-    const resetRecord = await this.prisma.passwordReset.findUnique({
-      where: { token },
-      include: { user: true },
-    });
-
-    if (!resetRecord || resetRecord.expiresAt < new Date()) {
-      throw new ForbiddenException('Invalid or expired token');
+    if (!user || !user.recoveryCodeHash) {
+      throw new ForbiddenException('Invalid recovery credentials');
     }
 
-    //kiểm tra xem user còn tồn tại không
-    const user = resetRecord.user;
+    const isRecoveryCodeValid = await this.verifyRecoveryCode(
+      recoveryCode,
+      user.recoveryCodeHash,
+    );
 
-    if (!user || user.deletedAt || !user.isActive) {
-      throw new ForbiddenException('User not found');
+    if (!isRecoveryCodeValid) {
+      throw new ForbiddenException('Thông tin khôi phục không hợp lệ');
     }
-    const hash = await bcrypt.hash(newPassword, 10);
 
-    //thực hiện cập nhật transaction: 1. cập nhật mật khẩu mới, 2. xóa token reset
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+
+    const newRecoveryCode = this.generateRecoveryCode();
+    const newRecoveryCodeHash = await this.hashRecoveryCode(newRecoveryCode);
+
     await this.prisma.$transaction([
       this.prisma.user.update({
         where: { id: user.id },
-        data: { passwordHash: hash },
+        data: {
+          passwordHash,
+          recoveryCodeHash: newRecoveryCodeHash,
+          recoveryCodeUpdatedAt: new Date(),
+        },
       }),
-      this.prisma.passwordReset.delete({
-        where: { token },
+
+      this.prisma.refreshToken.deleteMany({
+        where: { userId: user.id },
       }),
     ]);
+
+    return {
+      message: 'Password reset successfully',
+      recoveryCode: newRecoveryCode,
+    };
   }
 }

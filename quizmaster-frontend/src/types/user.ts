@@ -1,6 +1,6 @@
 export type UserRole = "user" | "admin";
 
-export type UserProfile = {
+export type User = {
   id: string;
   email: string;
   name: string | null;
@@ -15,7 +15,7 @@ export type UpdateMeRequest = {
   name?: string;
 };
 
-export type AdminUser = UserProfile & {
+export type AdminUser = User & {
   deletedAt: string | null;
   _count?: {
     quizzes: number;
