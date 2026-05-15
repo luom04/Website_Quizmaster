@@ -17,6 +17,17 @@ import type { Response } from 'express';
 import { Res } from '@nestjs/common';
 import { SetCookieInterceptor } from './interceptors/set-cookie.interceptor';
 
+function getRefreshTokenClearCookieOptions() {
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  return {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? ('none' as const) : ('lax' as const),
+    path: '/',
+  };
+}
+
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -43,7 +54,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     await this.authService.logout(userId);
-    res.clearCookie('refreshToken');
+    res.clearCookie('refreshToken', getRefreshTokenClearCookieOptions());
     return { success: true };
   }
 
