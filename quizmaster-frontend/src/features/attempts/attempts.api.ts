@@ -3,6 +3,7 @@ import {
   normalizePaginatedData,
   type ApiSuccessResponse,
   type PaginatedData,
+  type BackendPaginatedData,
 } from "@/types/api";
 import type {
   AttemptEvent,
@@ -65,7 +66,7 @@ export const attemptsApi = {
 
   async getMyHistory(params?: AttemptHistoryQueryParams) {
     const response = await api.get<
-      ApiSuccessResponse<PaginatedData<AttemptHistoryItem>>
+      ApiSuccessResponse<BackendPaginatedData<AttemptHistoryItem>>
     >(ATTEMPTS_ENDPOINTS.MY_HISTORY, { params });
 
     return normalizePaginatedData(response.data.data);
@@ -76,7 +77,7 @@ export const attemptsApi = {
     params?: Omit<AttemptHistoryQueryParams, "quizId">,
   ) {
     const response = await api.get<
-      ApiSuccessResponse<PaginatedData<AttemptHistoryItem>>
+      ApiSuccessResponse<BackendPaginatedData<AttemptHistoryItem>>
     >(ATTEMPTS_ENDPOINTS.MY_ATTEMPTS_BY_QUIZ(quizId), { params });
 
     return normalizePaginatedData(response.data.data);
