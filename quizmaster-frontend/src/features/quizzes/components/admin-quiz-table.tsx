@@ -86,10 +86,10 @@ export function AdminQuizTable({
   }
 
   return (
-    <div className="overflow-hidden rounded-3xl border bg-card shadow-sm">
+    <div className="overflow-hidden rounded-3xl border bg-background shadow-sm">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1120px] text-sm">
-          <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
+          <thead className="bg-muted/70 text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
               <th className="px-4 py-3 font-medium">Quiz</th>
               <th className="px-4 py-3 font-medium">Category</th>
@@ -109,7 +109,10 @@ export function AdminQuizTable({
               const isDeleted = quiz.status === "DELETED";
 
               return (
-                <tr key={quiz.id} className="bg-card">
+                <tr
+                  key={quiz.id}
+                  className="border-t transition hover:bg-muted/40"
+                >
                   <td className="px-4 py-3">
                     <p className="line-clamp-2 max-w-xl font-medium">
                       {quiz.title}
@@ -184,6 +187,7 @@ export function AdminQuizTable({
                       <Button
                         type="button"
                         variant="outline"
+                        className="cursor-pointer"
                         size="sm"
                         disabled={isMutating}
                         onClick={() => onView(quiz)}
@@ -194,6 +198,7 @@ export function AdminQuizTable({
                       <Button
                         type="button"
                         variant="outline"
+                        className="cursor-pointer"
                         size="sm"
                         disabled={isMutating}
                         onClick={() => onManageQuestions(quiz)}
@@ -206,6 +211,7 @@ export function AdminQuizTable({
                         <Button
                           type="button"
                           variant="outline"
+                          className="cursor-pointer"
                           size="sm"
                           disabled={isMutating}
                           onClick={() => onViewPassword(quiz)}
@@ -220,6 +226,7 @@ export function AdminQuizTable({
                           <Button
                             type="button"
                             variant="outline"
+                            className="cursor-pointer"
                             size="sm"
                             disabled={isMutating}
                             onClick={() => onEdit(quiz)}
@@ -231,6 +238,7 @@ export function AdminQuizTable({
                           <Button
                             type="button"
                             variant="outline"
+                            className="cursor-pointer text-destructive hover:text-destructive disabled:cursor-not-allowed"
                             size="sm"
                             disabled={isMutating}
                             onClick={() => onDelete?.(quiz)}
@@ -244,6 +252,7 @@ export function AdminQuizTable({
                           <Button
                             type="button"
                             variant="outline"
+                            className="cursor-pointer"
                             size="sm"
                             disabled={isMutating}
                             onClick={() => onRestore?.(quiz)}
@@ -255,6 +264,7 @@ export function AdminQuizTable({
                           <Button
                             type="button"
                             variant="outline"
+                            className="cursor-pointer"
                             size="sm"
                             disabled={isMutating}
                             onClick={() => onPermanentDelete?.(quiz)}

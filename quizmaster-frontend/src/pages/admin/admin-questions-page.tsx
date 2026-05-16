@@ -1,4 +1,12 @@
-import { AlertCircle, FileQuestion, RefreshCcw } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  FileQuestion,
+  Layers3,
+  ListChecks,
+  RefreshCcw,
+  Trash2,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -9,6 +17,7 @@ import { useCategories } from "@/features/categories/categories.hooks";
 import { AdminQuestionFilters } from "@/features/questions/components/admin-question-filters";
 import { AdminQuestionFormPanel } from "@/features/questions/components/admin-question-form-panel";
 import { AdminQuestionTable } from "@/features/questions/components/admin-question-table";
+import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
 import {
   useCreateQuestion,
   useDeleteQuestion,
@@ -24,6 +33,7 @@ import type {
   Question,
   QuestionType,
 } from "@/types/question";
+import { Card, CardContent } from "@/components/ui/card";
 
 function QuestionsLoading() {
   return (
@@ -33,6 +43,71 @@ function QuestionsLoading() {
       <Skeleton className="h-20 rounded-3xl" />
       <Skeleton className="h-96 rounded-3xl" />
     </div>
+  );
+}
+
+type QuestionSummaryCardProps = {
+  label: string;
+  value: number;
+  description: string;
+  icon: React.ElementType;
+  tone: "emerald" | "blue" | "violet" | "rose";
+};
+
+const questionSummaryToneClasses: Record<
+  QuestionSummaryCardProps["tone"],
+  {
+    icon: string;
+    value: string;
+  }
+> = {
+  emerald: {
+    icon: "bg-emerald-500/10 text-emerald-600",
+    value: "text-emerald-700",
+  },
+  blue: {
+    icon: "bg-blue-500/10 text-blue-600",
+    value: "text-blue-700",
+  },
+  violet: {
+    icon: "bg-violet-500/10 text-violet-600",
+    value: "text-violet-700",
+  },
+  rose: {
+    icon: "bg-rose-500/10 text-rose-600",
+    value: "text-rose-700",
+  },
+};
+
+function QuestionSummaryCard({
+  label,
+  value,
+  description,
+  icon: Icon,
+  tone,
+}: QuestionSummaryCardProps) {
+  const styles = questionSummaryToneClasses[tone];
+
+  return (
+    <Card className="overflow-hidden transition hover:-translate-y-0.5 hover:shadow-md">
+      <CardContent className="flex items-start gap-4 p-4">
+        <span
+          className={`flex size-11 shrink-0 items-center justify-center rounded-2xl ${styles.icon}`}
+        >
+          <Icon className="size-5" />
+        </span>
+
+        <div className="min-w-0">
+          <p className="text-sm text-muted-foreground">{label}</p>
+          <p className={`mt-1 text-2xl font-semibold ${styles.value}`}>
+            {value}
+          </p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">
+            {description}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -68,6 +143,17 @@ export function AdminQuestionsPage() {
   const categories = categoriesQuery.data ?? [];
   const questions = questionsQuery.data?.items ?? [];
   const meta = questionsQuery.data?.meta;
+  const singleChoiceCount = questions.filter(
+    (question) => question.type === "single",
+  ).length;
+
+  const multipleChoiceCount = questions.filter(
+    (question) => question.type === "multiple",
+  ).length;
+
+  const deletedCount = questions.filter(
+    (question) => question.deletedAt,
+  ).length;
 
   const isInitialLoading = questionsQuery.isLoading && !questionsQuery.data;
 
@@ -208,29 +294,61 @@ export function AdminQuestionsPage() {
   return (
     <div className="space-y-6">
       <section className="relative overflow-hidden rounded-3xl border bg-card p-5 shadow-sm sm:p-6">
-        <div className="pointer-events-none absolute -right-20 -top-24 size-56 rounded-full bg-primary/10 blur-3xl" />
+        <AdminPageHeader
+          eyebrow="Question management"
+          title="Quản lý câu hỏi"
+          description="Tạo và quản lý ngân hàng câu hỏi single choice hoặc multiple choice theo từng category."
+          icon={FileQuestion}
+          tone="emerald"
+          meta={
+            <span className="inline-flex rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-600">
+              Total questions: {meta?.total ?? 0}
+            </span>
+          }
+          actions={
+            <Button
+              type="button"
+              variant="outline"
+              className="cursor-pointer"
+              onClick={() => questionsQuery.refetch()}
+            >
+              <RefreshCcw className="mr-2 size-4" />
+              Refresh
+            </Button>
+          }
+        />
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 mt-3">
+          <QuestionSummaryCard
+            label="Total in current view"
+            value={questions.length}
+            description={`Showing ${questions.length} of ${meta?.total ?? 0} questions.`}
+            icon={Layers3}
+            tone="emerald"
+          />
 
-        <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm">
-              <FileQuestion className="size-3.5 text-primary" />
-              Question management
-            </p>
+          <QuestionSummaryCard
+            label="Single choice"
+            value={singleChoiceCount}
+            description="Questions with exactly one correct answer."
+            icon={CheckCircle2}
+            tone="blue"
+          />
 
-            <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-              Quản lý câu hỏi
-            </h1>
+          <QuestionSummaryCard
+            label="Multiple choice"
+            value={multipleChoiceCount}
+            description="Questions that may contain multiple correct answers."
+            icon={ListChecks}
+            tone="violet"
+          />
 
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-              Tạo và quản lý ngân hàng câu hỏi single choice hoặc multiple
-              choice cho các bài quiz.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border bg-background/80 px-4 py-3 shadow-sm">
-            <p className="text-xs text-muted-foreground">Total questions</p>
-            <p className="mt-1 text-2xl font-semibold">{meta?.total ?? 0}</p>
-          </div>
+          <QuestionSummaryCard
+            label="Deleted"
+            value={deletedCount}
+            description="Soft-deleted questions in this view."
+            icon={Trash2}
+            tone="rose"
+          />
         </div>
       </section>
 

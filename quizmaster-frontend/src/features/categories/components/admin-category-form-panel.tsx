@@ -1,5 +1,5 @@
-import { Loader2, Plus, Save, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { FolderPlus, FolderTree, Loader2, Plus, Save, X } from "lucide-react";
+import { useEffect, useState, type FormEvent } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -30,15 +30,15 @@ export function AdminCategoryFormPanel({
   const [name, setName] = useState("");
 
   const isEditing = Boolean(category);
+  const trimmedName = name.trim();
+  const submitDisabled = isSubmitting || trimmedName.length < 2;
 
   useEffect(() => {
     setName(category?.name ?? "");
   }, [category]);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: FormEvent) {
     event.preventDefault();
-
-    const trimmedName = name.trim();
 
     if (trimmedName.length < 2) return;
 
@@ -52,65 +52,103 @@ export function AdminCategoryFormPanel({
   }
 
   return (
-    <Card className="rounded-3xl border-border/70 shadow-sm">
-      <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <CardTitle>
-            {isEditing ? "Chỉnh sửa category" : "Tạo category mới"}
-          </CardTitle>
-          <CardDescription>
-            Category giúp nhóm quiz và câu hỏi theo chủ đề.
-          </CardDescription>
-        </div>
+    <Card className="overflow-hidden rounded-3xl shadow-sm">
+      <CardHeader className="relative overflow-hidden border-b bg-amber-50/80">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-amber-500/20 via-orange-500/10 to-yellow-500/20" />
+        <div className="pointer-events-none absolute -right-10 -top-10 size-36 rounded-full bg-amber-500/20 blur-3xl" />
 
-        {isEditing ? (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={onCancelEdit}
-          >
-            <X className="size-4" />
-            Hủy sửa
-          </Button>
-        ) : null}
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <CardTitle>
+              {isEditing ? "Chỉnh sửa category" : "Tạo category mới"}
+            </CardTitle>
+            <CardDescription className="mt-2">
+              Category giúp nhóm quiz và câu hỏi theo cùng một chủ đề.
+            </CardDescription>
+
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+              <span className="inline-flex rounded-full bg-amber-500/10 px-2.5 py-1 font-medium text-amber-700">
+                {isEditing ? "Edit mode" : "Create mode"}
+              </span>
+
+              <span className="inline-flex rounded-full bg-background/80 px-2.5 py-1 font-medium text-muted-foreground">
+                Question bank group
+              </span>
+            </div>
+          </div>
+
+          {isEditing ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="cursor-pointer"
+              disabled={isSubmitting}
+              onClick={onCancelEdit}
+            >
+              <X className="mr-2 size-4" />
+              Hủy sửa
+            </Button>
+          ) : null}
+        </div>
       </CardHeader>
 
-      <CardContent>
-        <form
-          className="grid gap-4 lg:grid-cols-[1fr_auto]"
-          onSubmit={handleSubmit}
-        >
-          <div>
+      <CardContent className="p-4 sm:p-6">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <section className="rounded-3xl border bg-background p-4 shadow-sm sm:p-5">
+            <div className="mb-4 flex items-start gap-3">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600">
+                {isEditing ? (
+                  <FolderTree className="size-5" />
+                ) : (
+                  <FolderPlus className="size-5" />
+                )}
+              </span>
+
+              <div>
+                <h3 className="text-sm font-semibold">Thông tin category</h3>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                  Đặt tên ngắn gọn, dễ hiểu để admin chọn đúng nhóm câu hỏi khi
+                  tạo quiz.
+                </p>
+              </div>
+            </div>
+
             <label className="text-sm font-medium">Tên category</label>
             <Input
               value={name}
               disabled={isSubmitting}
               className="mt-2 h-10 rounded-xl"
-              placeholder="Ví dụ: Backend, Frontend, SQL..."
+              placeholder="Ví dụ: SQL, Python, Data Engineering..."
               onChange={(event) => setName(event.target.value)}
             />
-          </div>
 
-          <div className="flex items-end">
+            {trimmedName.length > 0 && trimmedName.length < 2 ? (
+              <p className="mt-2 text-xs text-destructive">
+                Tên category cần ít nhất 2 ký tự.
+              </p>
+            ) : null}
+          </section>
+
+          <div className="flex justify-end">
             <Button
               type="submit"
-              className="w-full lg:w-auto"
-              disabled={isSubmitting || name.trim().length < 2}
+              className="cursor-pointer disabled:cursor-not-allowed"
+              disabled={submitDisabled}
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="size-4 animate-spin" />
+                  <Loader2 className="mr-2 size-4 animate-spin" />
                   Đang lưu...
                 </>
               ) : isEditing ? (
                 <>
-                  <Save className="size-4" />
+                  <Save className="mr-2 size-4" />
                   Lưu thay đổi
                 </>
               ) : (
                 <>
-                  <Plus className="size-4" />
+                  <Plus className="mr-2 size-4" />
                   Tạo category
                 </>
               )}

@@ -1,4 +1,12 @@
-import { AlertCircle, Eye, Loader2, RefreshCcw, X } from "lucide-react";
+import {
+  AlertCircle,
+  Clock3,
+  Filter,
+  Loader2,
+  RefreshCcw,
+  ShieldAlert,
+  X,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -18,12 +26,20 @@ type AdminAttemptEventsPanelProps = {
   onClose: () => void;
 };
 
-const EVENT_LABELS: Record<string, string> = {
+const EVENT_LABELS: Record<QuizEventType, string> = {
   tab_blur: "Tab blur",
   tab_focus: "Tab focus",
   copy_attempt: "Copy attempt",
   right_click: "Right click",
   auto_submitted: "Auto submitted",
+};
+
+const EVENT_TONE_CLASSES: Record<QuizEventType, string> = {
+  tab_blur: "bg-amber-500/10 text-amber-700",
+  tab_focus: "bg-blue-500/10 text-blue-700",
+  copy_attempt: "bg-rose-500/10 text-rose-700",
+  right_click: "bg-orange-500/10 text-orange-700",
+  auto_submitted: "bg-violet-500/10 text-violet-700",
 };
 
 function formatDateTime(value?: string | null) {
@@ -81,47 +97,81 @@ export function AdminAttemptEventsPanel({
   }
 
   return (
-    <Card className="rounded-3xl border-border/70 shadow-sm">
-      <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <CardTitle className="flex items-center gap-2">
-            <Eye className="size-5 text-primary" />
-            Event timeline
-          </CardTitle>
+    <Card className="overflow-hidden rounded-3xl shadow-sm">
+      <CardHeader className="relative overflow-hidden border-b bg-rose-50/80">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-rose-500/20 via-orange-500/10 to-amber-500/20" />
+        <div className="pointer-events-none absolute -right-10 -top-10 size-36 rounded-full bg-rose-500/20 blur-3xl" />
 
-          <CardDescription>
-            Xem các event của attempt theo thứ tự thời gian. Mặc định hiển thị 5
-            event đầu tiên.
-          </CardDescription>
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <div className="mb-3 flex items-center gap-3">
+              <span className="flex size-11 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-600">
+                <ShieldAlert className="size-5" />
+              </span>
+
+              <div>
+                <CardTitle>Event timeline</CardTitle>
+                <CardDescription className="mt-1">
+                  Xem các event của attempt theo thứ tự thời gian.
+                </CardDescription>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="inline-flex rounded-full bg-background/80 px-2.5 py-1 font-medium text-muted-foreground">
+                {attempt.eventCount} events
+              </span>
+
+              <span className="inline-flex rounded-full bg-amber-500/10 px-2.5 py-1 font-medium text-amber-700">
+                {attempt.tabSwitchCount} tab switches
+              </span>
+
+              <span className="inline-flex rounded-full bg-background/80 px-2.5 py-1 font-medium text-muted-foreground">
+                {attempt.user.email}
+              </span>
+            </div>
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="cursor-pointer"
+            onClick={onClose}
+          >
+            <X className="mr-2 size-4" />
+            Đóng
+          </Button>
         </div>
-
-        <Button type="button" variant="ghost" size="sm" onClick={onClose}>
-          <X className="size-4" />
-          Đóng
-        </Button>
       </CardHeader>
 
-      <CardContent className="space-y-5">
-        <div className="grid gap-3 rounded-2xl border bg-muted/30 p-4 md:grid-cols-3">
+      <CardContent className="space-y-5 p-4 sm:p-6">
+        <div className="grid gap-3 rounded-3xl border bg-muted/20 p-4 sm:grid-cols-3">
           <div>
-            <p className="text-xs text-muted-foreground">User</p>
-            <p className="mt-1 text-sm font-medium">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              User
+            </p>
+            <p className="mt-1 truncate text-sm font-medium">
               {attempt.user.name || "Unnamed user"}
             </p>
-            <p className="mt-1 break-all text-xs text-muted-foreground">
+            <p className="truncate text-xs text-muted-foreground">
               {attempt.user.email}
             </p>
           </div>
 
           <div>
-            <p className="text-xs text-muted-foreground">Quiz</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Quiz
+            </p>
             <p className="mt-1 line-clamp-2 text-sm font-medium">
               {attempt.quiz.title}
             </p>
           </div>
 
           <div>
-            <p className="text-xs text-muted-foreground">Monitoring</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Monitoring
+            </p>
             <p className="mt-1 text-sm font-medium">
               {attempt.eventCount} events · {attempt.tabSwitchCount} tab
               switches
@@ -129,25 +179,28 @@ export function AdminAttemptEventsPanel({
           </div>
         </div>
 
-        <div className="grid gap-3 rounded-2xl border bg-card p-4 md:grid-cols-[220px_180px_auto] md:items-center">
-          <select
-            value={eventType}
-            className="h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none transition focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-            onChange={(event) =>
-              handleEventTypeChange(event.target.value as "" | QuizEventType)
-            }
-          >
-            <option value="">Tất cả event</option>
-            <option value="tab_blur">Tab blur</option>
-            <option value="tab_focus">Tab focus</option>
-            <option value="copy_attempt">Copy attempt</option>
-            <option value="right_click">Right click</option>
-            <option value="auto_submitted">Auto submitted</option>
-          </select>
+        <div className="grid gap-3 lg:grid-cols-[1fr_1fr_auto]">
+          <div className="relative">
+            <Filter className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <select
+              value={eventType}
+              className="h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 pl-9 text-sm outline-none transition hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+              onChange={(event) =>
+                handleEventTypeChange(event.target.value as "" | QuizEventType)
+              }
+            >
+              <option value="">Tất cả event</option>
+              <option value="tab_blur">Tab blur</option>
+              <option value="tab_focus">Tab focus</option>
+              <option value="copy_attempt">Copy attempt</option>
+              <option value="right_click">Right click</option>
+              <option value="auto_submitted">Auto submitted</option>
+            </select>
+          </div>
 
           <select
             value={sort}
-            className="h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none transition focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+            className="h-10 cursor-pointer rounded-xl border border-input bg-background px-3 text-sm outline-none transition hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
             onChange={(event) =>
               handleSortChange(event.target.value as "asc" | "desc")
             }
@@ -159,83 +212,105 @@ export function AdminAttemptEventsPanel({
           <Button
             type="button"
             variant="outline"
+            className="cursor-pointer"
             onClick={() => eventsQuery.refetch()}
           >
-            <RefreshCcw className="size-4" />
+            <RefreshCcw className="mr-2 size-4" />
             Refresh
           </Button>
         </div>
 
         {eventsQuery.isLoading && !eventsQuery.data ? (
-          <div className="flex items-center gap-2 rounded-2xl border bg-muted/30 p-6 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 rounded-2xl border bg-muted/20 p-5 text-sm text-muted-foreground">
             <Loader2 className="size-4 animate-spin" />
             Đang tải event timeline...
           </div>
         ) : eventsQuery.isError ? (
-          <div className="flex items-start gap-3 rounded-2xl border bg-muted/30 p-6 text-sm text-muted-foreground">
-            <AlertCircle className="mt-0.5 size-4 text-destructive" />
-            Không thể tải event timeline. Vui lòng thử lại.
+          <div className="flex items-start gap-3 rounded-2xl border border-destructive/30 bg-destructive/5 p-5 text-sm text-destructive">
+            <AlertCircle className="mt-0.5 size-4 shrink-0" />
+            <div>
+              <p className="font-medium">Không thể tải event timeline.</p>
+              <p className="mt-1 text-destructive/80">
+                Vui lòng thử lại hoặc kiểm tra quyền admin.
+              </p>
+            </div>
           </div>
         ) : events.length === 0 ? (
-          <div className="rounded-2xl border bg-muted/30 p-6 text-center text-sm text-muted-foreground">
+          <div className="rounded-2xl border border-dashed bg-background p-5 text-sm text-muted-foreground">
             Không có event nào khớp với bộ lọc hiện tại.
           </div>
         ) : (
           <div className="space-y-3">
-            {events.map((event, index) => (
-              <div
-                key={event.id}
-                className="grid gap-3 rounded-2xl border bg-card p-4 md:grid-cols-[80px_220px_1fr]"
-              >
-                <div>
-                  <p className="text-xs text-muted-foreground">No.</p>
-                  <p className="mt-1 text-sm font-semibold">
-                    #
-                    {(meta?.page ?? 1) * (meta?.limit ?? 5) -
-                      (meta?.limit ?? 5) +
-                      index +
-                      1}
-                  </p>
-                </div>
+            {events.map((event, index) => {
+              const timelineIndex =
+                (meta?.page ?? 1) * (meta?.limit ?? 5) -
+                (meta?.limit ?? 5) +
+                index +
+                1;
 
-                <div>
-                  <p className="text-xs text-muted-foreground">Event</p>
-                  <p className="mt-1 text-sm font-medium">
-                    {getEventLabel(event.eventType)}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {formatDateTime(event.createdAt)}
-                  </p>
-                </div>
+              return (
+                <div
+                  key={event.id}
+                  className="rounded-3xl border bg-background p-4 shadow-sm"
+                >
+                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="min-w-0">
+                      <div className="mb-2 flex flex-wrap items-center gap-2">
+                        <span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+                          #{timelineIndex}
+                        </span>
 
-                <div>
-                  <p className="text-xs text-muted-foreground">Metadata</p>
+                        <span
+                          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
+                            EVENT_TONE_CLASSES[event.eventType]
+                          }`}
+                        >
+                          {getEventLabel(event.eventType)}
+                        </span>
+                      </div>
 
-                  {event.metadata ? (
-                    <pre className="mt-2 max-h-40 overflow-auto rounded-xl bg-muted/40 p-3 text-xs text-muted-foreground">
-                      {JSON.stringify(event.metadata, null, 2)}
-                    </pre>
-                  ) : (
-                    <p className="mt-2 text-sm text-muted-foreground">—</p>
-                  )}
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Clock3 className="size-4" />
+                        {formatDateTime(event.createdAt)}
+                      </div>
+                    </div>
+
+                    <div className="min-w-0 lg:w-[55%]">
+                      <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        Metadata
+                      </p>
+
+                      {event.metadata ? (
+                        <pre className="max-h-40 overflow-auto rounded-2xl bg-muted/70 p-3 text-xs leading-5">
+                          {JSON.stringify(event.metadata, null, 2)}
+                        </pre>
+                      ) : (
+                        <div className="rounded-2xl border border-dashed p-3 text-sm text-muted-foreground">
+                          —
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
         {meta ? (
-          <div className="flex items-center justify-between gap-3 rounded-2xl border bg-card p-4">
-            <p className="text-sm text-muted-foreground">
+          <div className="flex flex-col gap-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+            <span>
               Page {meta.page} / {meta.totalPages || 1} · Total {meta.total}{" "}
               events
-            </p>
+            </span>
 
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
               <Button
                 type="button"
                 variant="outline"
-                disabled={page <= 1 || eventsQuery.isFetching}
+                size="sm"
+                className="cursor-pointer disabled:cursor-not-allowed"
+                disabled={meta.page <= 1 || eventsQuery.isFetching}
                 onClick={() => setPage((current) => Math.max(1, current - 1))}
               >
                 Previous
@@ -244,8 +319,10 @@ export function AdminAttemptEventsPanel({
               <Button
                 type="button"
                 variant="outline"
+                size="sm"
+                className="cursor-pointer disabled:cursor-not-allowed"
                 disabled={
-                  page >= meta.totalPages ||
+                  meta.page >= meta.totalPages ||
                   meta.totalPages === 0 ||
                   eventsQuery.isFetching
                 }

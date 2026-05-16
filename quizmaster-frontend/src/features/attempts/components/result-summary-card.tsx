@@ -167,7 +167,7 @@ export function ResultSummaryCard({ result }: ResultSummaryCardProps) {
 
             {showAnswer && result.quiz.passingScore !== null ? (
               <p className="mt-3 text-xs text-muted-foreground">
-                Điểm đạt yêu cầu: {result.quiz.passingScore}%
+                Điểm đạt yêu cầu: {result.quiz.passingScore}
               </p>
             ) : null}
           </div>

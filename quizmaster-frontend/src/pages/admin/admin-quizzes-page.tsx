@@ -1,4 +1,12 @@
-import { AlertCircle, BookOpenCheck, RefreshCcw } from "lucide-react";
+import {
+  AlertCircle,
+  BarChart3,
+  RefreshCcw,
+  CheckCircle2,
+  Layers3,
+  FilePenLine,
+  Trash2,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { getApiErrorMessage } from "@/lib/axios";
@@ -19,6 +27,7 @@ import { AdminQuizTable } from "@/features/quizzes/components/admin-quiz-table";
 import { AdminQuizFormPanel } from "@/features/quizzes/components/admin-quiz-form-panel";
 import { AdminQuizQuestionManager } from "@/features/quizzes/components/admin-quiz-question-manager";
 import { AdminQuizPasswordPanel } from "@/features/quizzes/components/admin-quiz-password-panel";
+import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
 import {
   useAdminQuizzes,
   useCreateQuiz,
@@ -36,6 +45,71 @@ function QuizzesLoading() {
       <Skeleton className="h-20 rounded-3xl" />
       <Skeleton className="h-96 rounded-3xl" />
     </div>
+  );
+}
+
+type QuizSummaryCardProps = {
+  label: string;
+  value: number;
+  description: string;
+  icon: React.ElementType;
+  tone: "violet" | "emerald" | "amber" | "rose";
+};
+
+const summaryToneClasses: Record<
+  QuizSummaryCardProps["tone"],
+  {
+    icon: string;
+    value: string;
+  }
+> = {
+  violet: {
+    icon: "bg-violet-500/10 text-violet-600",
+    value: "text-violet-700",
+  },
+  emerald: {
+    icon: "bg-emerald-500/10 text-emerald-600",
+    value: "text-emerald-700",
+  },
+  amber: {
+    icon: "bg-amber-500/10 text-amber-600",
+    value: "text-amber-700",
+  },
+  rose: {
+    icon: "bg-rose-500/10 text-rose-600",
+    value: "text-rose-700",
+  },
+};
+
+function QuizSummaryCard({
+  label,
+  value,
+  description,
+  icon: Icon,
+  tone,
+}: QuizSummaryCardProps) {
+  const styles = summaryToneClasses[tone];
+
+  return (
+    <Card className="overflow-hidden transition hover:-translate-y-0.5 hover:shadow-md">
+      <CardContent className="flex items-start gap-4 p-4">
+        <span
+          className={`flex size-11 shrink-0 items-center justify-center rounded-2xl ${styles.icon}`}
+        >
+          <Icon className="size-5" />
+        </span>
+
+        <div className="min-w-0">
+          <p className="text-sm text-muted-foreground">{label}</p>
+          <p className={`mt-1 text-2xl font-semibold ${styles.value}`}>
+            {value}
+          </p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">
+            {description}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -75,6 +149,12 @@ export function AdminQuizzesPage() {
   const quizzes = quizzesQuery.data?.items ?? [];
   const meta = quizzesQuery.data?.meta;
   const categories = categoriesQuery.data ?? [];
+
+  const publishedCount = quizzes.filter((quiz) => quiz.isPublished).length;
+  const draftCount = quizzes.filter((quiz) => quiz.status === "DRAFT").length;
+  const deletedCount = quizzes.filter(
+    (quiz) => quiz.status === "DELETED",
+  ).length;
 
   const isMutating =
     createQuizMutation.isPending ||
@@ -177,7 +257,11 @@ export function AdminQuizzesPage() {
     }
   }
 
-  if (quizzesQuery.isLoading && !quizzesQuery.data) {
+  const isInitialLoading =
+    (quizzesQuery.isLoading && !quizzesQuery.data) ||
+    (categoriesQuery.isLoading && !categoriesQuery.data);
+
+  if (isInitialLoading) {
     return <QuizzesLoading />;
   }
 
@@ -200,29 +284,56 @@ export function AdminQuizzesPage() {
   return (
     <div className="space-y-6">
       <section className="relative overflow-hidden rounded-3xl border bg-card p-5 shadow-sm sm:p-6">
-        <div className="pointer-events-none absolute -right-20 -top-24 size-56 rounded-full bg-primary/10 blur-3xl" />
+        <AdminPageHeader
+          eyebrow="Admin dashboard"
+          title="Tổng quan hệ thống"
+          description="Theo dõi nhanh người dùng, quiz, câu hỏi, lượt làm bài và các dấu hiệu bất thường trong Quizmaster."
+          icon={BarChart3}
+          tone="blue"
+          actions={
+            <Button
+              type="button"
+              variant="outline"
+              className="cursor-pointer"
+              onClick={() => quizzesQuery.refetch()}
+            >
+              <RefreshCcw className="mr-2 size-4" />
+              Làm mới dữ liệu
+            </Button>
+          }
+        />
+        <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <QuizSummaryCard
+            label="Total in current view"
+            value={quizzes.length}
+            description={`Showing ${quizzes.length} of ${meta?.total ?? 0} quizzes.`}
+            icon={Layers3}
+            tone="violet"
+          />
 
-        <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm">
-              <BookOpenCheck className="size-3.5 text-primary" />
-              Quiz management
-            </p>
+          <QuizSummaryCard
+            label="Published"
+            value={publishedCount}
+            description="Quizzes currently visible to users."
+            icon={CheckCircle2}
+            tone="emerald"
+          />
 
-            <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-              Quản lý quizzes
-            </h1>
+          <QuizSummaryCard
+            label="Draft"
+            value={draftCount}
+            description="Quizzes still being prepared."
+            icon={FilePenLine}
+            tone="amber"
+          />
 
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-              Theo dõi danh sách quiz, trạng thái phát hành, cấu hình làm bài và
-              lịch mở quiz.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border bg-background/80 px-4 py-3 shadow-sm">
-            <p className="text-xs text-muted-foreground">Total quizzes</p>
-            <p className="mt-1 text-2xl font-semibold">{meta?.total ?? 0}</p>
-          </div>
+          <QuizSummaryCard
+            label="Deleted"
+            value={deletedCount}
+            description="Soft-deleted quizzes in this view."
+            icon={Trash2}
+            tone="rose"
+          />
         </div>
       </section>
 
@@ -242,7 +353,11 @@ export function AdminQuizzesPage() {
           Đang cập nhật danh sách quiz...
         </p>
       ) : null}
-
+      {quizzesQuery.isFetching && quizzesQuery.data ? (
+        <div className="rounded-2xl border bg-muted/30 px-4 py-2 text-sm text-muted-foreground">
+          Đang cập nhật danh sách quizzes...
+        </div>
+      ) : null}
       <AdminQuizTable
         quizzes={quizzes}
         onView={setSelectedQuiz}
@@ -286,6 +401,7 @@ export function AdminQuizzesPage() {
           <div className="flex gap-2">
             <Button
               variant="outline"
+              className="cursor-pointer disabled:cursor-not-allowed"
               disabled={page <= 1}
               onClick={() => setPage((current) => Math.max(1, current - 1))}
             >
@@ -294,6 +410,7 @@ export function AdminQuizzesPage() {
 
             <Button
               variant="outline"
+              className="cursor-pointer disabled:cursor-not-allowed"
               disabled={page >= meta.totalPages}
               onClick={() =>
                 setPage((current) => Math.min(meta.totalPages, current + 1))

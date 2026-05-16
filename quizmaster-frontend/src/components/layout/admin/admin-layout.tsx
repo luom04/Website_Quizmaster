@@ -5,15 +5,17 @@ import { AdminTopbar } from "@/components/layout/admin/admin-topbar";
 
 export function AdminLayout() {
   return (
-    <div className="min-h-screen bg-muted/20 text-foreground">
-      <div className="grid min-h-screen lg:grid-cols-[18rem_1fr]">
+    <div className="min-h-screen bg-muted/30 text-foreground">
+      <div className="grid min-h-screen lg:grid-cols-[17rem_1fr]">
         <AdminSidebar />
 
-        <div className="min-w-0">
+        <div className="flex min-w-0 flex-col">
           <AdminTopbar />
 
-          <main className="px-4 py-8 sm:px-6 lg:px-8">
-            <Outlet />
+          <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+            <div className="mx-auto w-full max-w-[1600px]">
+              <Outlet />
+            </div>
           </main>
         </div>
       </div>
