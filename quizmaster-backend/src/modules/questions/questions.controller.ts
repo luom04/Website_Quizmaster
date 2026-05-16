@@ -12,11 +12,10 @@ import {
   Query,
 } from '@nestjs/common';
 import { QuestionsService } from './questions.service';
-import { CreateQuestionDto } from './dto/question.dto';
+import { CreateQuestionDto, QueryQuestionsDto } from './dto/question.dto';
 import { Roles } from '../../common/decorators/roles.decorator';
-import { QuestionType, Role } from '@prisma/client';
+import { Role } from '@prisma/client';
 import { RolesGuard } from '../../common/guards/roles.guard';
-import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @Controller('questions')
 @Roles(Role.admin)
@@ -32,18 +31,8 @@ export class QuestionsController {
 
   @HttpCode(HttpStatus.OK)
   @Get()
-  findAll(
-    @Query('categoryId') categoryId?: string,
-    @Query('type') type?: QuestionType,
-    @Query('search') search?: string,
-    @Query('includeDeleted') includeDeleted?: boolean,
-  ) {
-    return this.questionsService.findAll({
-      categoryId,
-      type,
-      search,
-      includeDeleted,
-    });
+  findAll(@Query() query: QueryQuestionsDto) {
+    return this.questionsService.findAll(query);
   }
 
   @Get(':id')
