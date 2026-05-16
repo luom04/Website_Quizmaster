@@ -1,4 +1,4 @@
-import { AlertCircle, BookOpenCheck, RefreshCcw } from "lucide-react";
+import { AlertCircle, BarChart3, RefreshCcw } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { getApiErrorMessage } from "@/lib/axios";
@@ -19,6 +19,7 @@ import { AdminQuizTable } from "@/features/quizzes/components/admin-quiz-table";
 import { AdminQuizFormPanel } from "@/features/quizzes/components/admin-quiz-form-panel";
 import { AdminQuizQuestionManager } from "@/features/quizzes/components/admin-quiz-question-manager";
 import { AdminQuizPasswordPanel } from "@/features/quizzes/components/admin-quiz-password-panel";
+import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
 import {
   useAdminQuizzes,
   useCreateQuiz,
@@ -203,21 +204,24 @@ export function AdminQuizzesPage() {
         <div className="pointer-events-none absolute -right-20 -top-24 size-56 rounded-full bg-primary/10 blur-3xl" />
 
         <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm">
-              <BookOpenCheck className="size-3.5 text-primary" />
-              Quiz management
-            </p>
-
-            <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-              Quản lý quizzes
-            </h1>
-
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-              Theo dõi danh sách quiz, trạng thái phát hành, cấu hình làm bài và
-              lịch mở quiz.
-            </p>
-          </div>
+          <AdminPageHeader
+            eyebrow="Admin dashboard"
+            title="Tổng quan hệ thống"
+            description="Theo dõi nhanh người dùng, quiz, câu hỏi, lượt làm bài và các dấu hiệu bất thường trong Quizmaster."
+            icon={BarChart3}
+            tone="blue"
+            actions={
+              <Button
+                type="button"
+                variant="outline"
+                className="cursor-pointer"
+                onClick={() => quizzesQuery.refetch()}
+              >
+                <RefreshCcw className="mr-2 size-4" />
+                Làm mới dữ liệu
+              </Button>
+            }
+          />
 
           <div className="rounded-2xl border bg-background/80 px-4 py-3 shadow-sm">
             <p className="text-xs text-muted-foreground">Total quizzes</p>

@@ -22,6 +22,7 @@ import { AdminDashboardSection } from "@/features/admin/components/admin-dashboa
 import { AdminStatCard } from "@/features/admin/components/admin-stat-card";
 import { RecentAttemptsTable } from "@/features/admin/components/recent-attempts-table";
 import { TopQuizzesTable } from "@/features/admin/components/top-quizzes-table";
+import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
 
 function formatPercent(value?: number | null) {
   if (value === null || value === undefined) return "—";
@@ -191,22 +192,24 @@ export function AdminDashboardPage() {
     <div className="space-y-6">
       <section className="relative overflow-hidden rounded-3xl border bg-card p-5 shadow-sm sm:p-6">
         <div className="pointer-events-none absolute -right-20 -top-24 size-56 rounded-full bg-primary/10 blur-3xl" />
-
-        <div className="relative">
-          <p className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm">
-            <BarChart3 className="size-3.5 text-primary" />
-            Admin dashboard
-          </p>
-
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-            Tổng quan hệ thống
-          </h1>
-
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-            Theo dõi nhanh người dùng, quiz, câu hỏi, lượt làm bài và các dấu
-            hiệu bất thường trong Quizmaster.
-          </p>
-        </div>
+        <AdminPageHeader
+          eyebrow="Admin dashboard"
+          title="Tổng quan hệ thống"
+          description="Theo dõi nhanh người dùng, quiz, câu hỏi, lượt làm bài và các dấu hiệu bất thường trong Quizmaster."
+          icon={BarChart3}
+          tone="blue"
+          actions={
+            <Button
+              type="button"
+              variant="outline"
+              className="cursor-pointer"
+              onClick={handleRefetch}
+            >
+              <RefreshCcw className="mr-2 size-4" />
+              Làm mới dữ liệu
+            </Button>
+          }
+        />
       </section>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
