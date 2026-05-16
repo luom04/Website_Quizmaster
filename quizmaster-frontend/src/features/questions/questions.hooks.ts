@@ -4,7 +4,6 @@ import {
   useQueryClient,
   keepPreviousData,
 } from "@tanstack/react-query";
-
 import { questionsApi } from "@/features/questions/questions.api";
 import { queryKeys } from "@/lib/queryKeys";
 import type {
@@ -18,11 +17,12 @@ type UpdateQuestionInput = {
   payload: UpdateQuestionRequest;
 };
 
-export function useQuestions(params?: QuestionsQueryParams) {
+export function useQuestions(params?: QuestionsQueryParams, enabled = true) {
   return useQuery({
     queryKey: queryKeys.questions.list(params),
     queryFn: () => questionsApi.getQuestions(params),
     placeholderData: keepPreviousData,
+    enabled,
   });
 }
 

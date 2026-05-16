@@ -68,6 +68,24 @@ export class QuizzesService {
 
     return question;
   }
+
+  private ensureQuestionMatchesQuizCategory(
+    quizCategoryId: string | null,
+    questionCategoryId: string | null,
+  ) {
+    if (!quizCategoryId) {
+      throw new BadRequestException(
+        'Quiz cần có category trước khi thêm câu hỏi.',
+      );
+    }
+
+    if (questionCategoryId !== quizCategoryId) {
+      throw new BadRequestException(
+        'Câu hỏi không thuộc cùng category với quiz.',
+      );
+    }
+  }
+
   async create(userId: string, createQuizDto: CreateQuizDto) {
     this.validateQuizTime(createQuizDto.startsAt, createQuizDto.endsAt);
 
@@ -461,8 +479,14 @@ export class QuizzesService {
   }
 
   async addQuestion(quizId: string, dto: AddQuestionToQuizDto) {
-    await this.ensureQuizExists(quizId);
-    await this.ensureQuestionExists(dto.questionId);
+    const quiz = await this.ensureQuizExists(quizId);
+    const question = await this.ensureQuestionExists(dto.questionId);
+
+    this.ensureQuestionMatchesQuizCategory(
+      quiz.categoryId,
+      question.categoryId,
+    );
+
     const sameOrder = await this.prisma.quizQuestion.findFirst({
       where: {
         quizId,
@@ -501,10 +525,18 @@ export class QuizzesService {
     quizId: string,
     questions: { questionId: string; orderIndex: number }[],
   ) {
-    await this.ensureQuizExists(quizId);
+    const quiz = await this.ensureQuizExists(quizId);
+
     if (!questions || questions.length === 0) {
       throw new BadRequestException('Danh sách câu hỏi không được để trống.');
     }
+
+    if (!quiz.categoryId) {
+      throw new BadRequestException(
+        'Quiz cần có category trước khi thêm câu hỏi.',
+      );
+    }
+
     const questionIds = questions.map((q) => q.questionId);
     const orderIndexes = questions.map((q) => q.orderIndex);
 
@@ -525,7 +557,10 @@ export class QuizzesService {
         id: { in: questionIds },
         deletedAt: null,
       },
-      select: { id: true },
+      select: {
+        id: true,
+        categoryId: true,
+      },
     });
 
     const existingQuestionIds = new Set(existingQuestions.map((q) => q.id));
@@ -536,6 +571,16 @@ export class QuizzesService {
     if (missingQuestionIds.length > 0) {
       throw new NotFoundException(
         `Không tìm thấy câu hỏi: ${missingQuestionIds.join(', ')}`,
+      );
+    }
+
+    const invalidCategoryQuestions = existingQuestions.filter(
+      (question) => question.categoryId !== quiz.categoryId,
+    );
+
+    if (invalidCategoryQuestions.length > 0) {
+      throw new BadRequestException(
+        'Một số câu hỏi không thuộc cùng category với quiz.',
       );
     }
 
