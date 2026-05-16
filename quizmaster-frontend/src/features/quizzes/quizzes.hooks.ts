@@ -68,6 +68,7 @@ export function useAdminQuizzes(params?: AdminQuizQueryParams) {
   return useQuery({
     queryKey: queryKeys.quizzes.adminList(params),
     queryFn: () => quizzesApi.getAdminQuizzes(params),
+    placeholderData: keepPreviousData,
   });
 }
 

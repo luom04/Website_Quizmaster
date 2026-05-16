@@ -257,7 +257,11 @@ export function AdminQuizzesPage() {
     }
   }
 
-  if (quizzesQuery.isLoading && !quizzesQuery.data) {
+  const isInitialLoading =
+    (quizzesQuery.isLoading && !quizzesQuery.data) ||
+    (categoriesQuery.isLoading && !categoriesQuery.data);
+
+  if (isInitialLoading) {
     return <QuizzesLoading />;
   }
 
@@ -349,7 +353,11 @@ export function AdminQuizzesPage() {
           Đang cập nhật danh sách quiz...
         </p>
       ) : null}
-
+      {quizzesQuery.isFetching && quizzesQuery.data ? (
+        <div className="rounded-2xl border bg-muted/30 px-4 py-2 text-sm text-muted-foreground">
+          Đang cập nhật danh sách quizzes...
+        </div>
+      ) : null}
       <AdminQuizTable
         quizzes={quizzes}
         onView={setSelectedQuiz}
