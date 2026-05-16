@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AdminCategoryFilters } from "@/features/categories/components/admin-category-filters";
 import { AdminCategoryFormPanel } from "@/features/categories/components/admin-category-form-panel";
 import { AdminCategoryTable } from "@/features/categories/components/admin-category-table";
+import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
 import {
   useCategories,
   useCreateCategory,
@@ -173,29 +174,29 @@ export function AdminCategoriesPage() {
   return (
     <div className="space-y-6">
       <section className="relative overflow-hidden rounded-3xl border bg-card p-5 shadow-sm sm:p-6">
-        <div className="pointer-events-none absolute -right-20 -top-24 size-56 rounded-full bg-primary/10 blur-3xl" />
-
-        <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm">
-              <FolderTree className="size-3.5 text-primary" />
-              Category management
-            </p>
-
-            <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-              Quản lý categories
-            </h1>
-
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-              Tạo và quản lý các nhóm chủ đề dùng cho quiz và ngân hàng câu hỏi.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border bg-background/80 px-4 py-3 shadow-sm">
-            <p className="text-xs text-muted-foreground">Total categories</p>
-            <p className="mt-1 text-2xl font-semibold">{categories.length}</p>
-          </div>
-        </div>
+        <AdminPageHeader
+          eyebrow="Category management"
+          title="Quản lý categories"
+          description="Tạo và quản lý các nhóm chủ đề dùng cho quiz và ngân hàng câu hỏi."
+          icon={FolderTree}
+          tone="amber"
+          meta={
+            <span className="inline-flex rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-600">
+              Total categories: {categories.length}
+            </span>
+          }
+          actions={
+            <Button
+              type="button"
+              variant="outline"
+              className="cursor-pointer"
+              onClick={() => categoriesQuery.refetch()}
+            >
+              <RefreshCcw className="mr-2 size-4" />
+              Refresh
+            </Button>
+          }
+        />
       </section>
 
       <AdminCategoryFormPanel

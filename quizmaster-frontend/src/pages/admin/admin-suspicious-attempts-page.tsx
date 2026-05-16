@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAdminSuspiciousAttempts } from "@/features/admin/admin.hooks";
 import { AdminSuspiciousAttemptsFilters } from "@/features/admin/components/admin-suspicious-attempts-filters";
 import { AdminSuspiciousAttemptsTable } from "@/features/admin/components/admin-suspicious-attempts-table";
+import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
 import { AdminAttemptEventsPanel } from "@/features/admin/components/admin-attempt-events-panel";
 import type { QuizEventType } from "@/types/attempt";
 import type { AdminSuspiciousAttemptItem } from "@/types/admin";
@@ -103,30 +104,29 @@ export function AdminSuspiciousAttemptsPage() {
   return (
     <div className="space-y-6">
       <section className="relative overflow-hidden rounded-3xl border bg-card p-5 shadow-sm sm:p-6">
-        <div className="pointer-events-none absolute -right-20 -top-24 size-56 rounded-full bg-destructive/10 blur-3xl" />
-
-        <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm">
-              <ShieldAlert className="size-3.5 text-destructive" />
-              Suspicious attempts
-            </p>
-
-            <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-              Theo dõi bài làm đáng ngờ
-            </h1>
-
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-              Tập trung vào các lượt làm bài có dấu hiệu bất thường như chuyển
-              tab nhiều lần, copy attempt, right click hoặc auto submit.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border bg-background/80 px-4 py-3 shadow-sm">
-            <p className="text-xs text-muted-foreground">Suspicious attempts</p>
-            <p className="mt-1 text-2xl font-semibold">{meta?.total ?? 0}</p>
-          </div>
-        </div>
+        <AdminPageHeader
+          eyebrow="Suspicious attempts"
+          title="Theo dõi bài làm đáng ngờ"
+          description="Tập trung vào các lượt làm bài có dấu hiệu bất thường như chuyển tab nhiều lần, copy attempt, right click hoặc auto submit."
+          icon={ShieldAlert}
+          tone="rose"
+          meta={
+            <span className="inline-flex rounded-full bg-rose-500/10 px-2.5 py-1 text-xs font-medium text-rose-600">
+              Suspicious attempts: {meta?.total ?? 0}
+            </span>
+          }
+          actions={
+            <Button
+              type="button"
+              variant="outline"
+              className="cursor-pointer"
+              onClick={() => suspiciousAttemptsQuery.refetch()}
+            >
+              <RefreshCcw className="mr-2 size-4" />
+              Refresh
+            </Button>
+          }
+        />
       </section>
 
       <AdminSuspiciousAttemptsFilters
@@ -164,6 +164,7 @@ export function AdminSuspiciousAttemptsPage() {
           <div className="flex gap-2">
             <Button
               variant="outline"
+              className="cursor-pointer disabled:cursor-not-allowed"
               disabled={page <= 1}
               onClick={() => setPage((current) => Math.max(1, current - 1))}
             >
@@ -172,6 +173,7 @@ export function AdminSuspiciousAttemptsPage() {
 
             <Button
               variant="outline"
+              className="cursor-pointer disabled:cursor-not-allowed"
               disabled={page >= meta.totalPages}
               onClick={() =>
                 setPage((current) => Math.min(meta.totalPages, current + 1))

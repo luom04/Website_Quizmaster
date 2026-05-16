@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AdminUserEditPanel } from "@/features/users/components/admin-user-edit-panel";
 import { AdminUserFilters } from "@/features/users/components/admin-user-filters";
 import { AdminUserTable } from "@/features/users/components/admin-user-table";
+import { AdminPageHeader } from "@/features/admin/components/admin-page-header";
 import {
   useAdminDeleteUser,
   useAdminRestoreUser,
@@ -158,30 +159,29 @@ export function AdminUsersPage() {
   return (
     <div className="space-y-6">
       <section className="relative overflow-hidden rounded-3xl border bg-card p-5 shadow-sm sm:p-6">
-        <div className="pointer-events-none absolute -right-20 -top-24 size-56 rounded-full bg-primary/10 blur-3xl" />
-
-        <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm">
-              <Users className="size-3.5 text-primary" />
-              User management
-            </p>
-
-            <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-              Quản lý người dùng
-            </h1>
-
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-              Theo dõi tài khoản, phân quyền, trạng thái hoạt động và xử lý các
-              tài khoản đã bị xóa mềm.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border bg-background/80 px-4 py-3 shadow-sm">
-            <p className="text-xs text-muted-foreground">Total users</p>
-            <p className="mt-1 text-2xl font-semibold">{meta?.total ?? 0}</p>
-          </div>
-        </div>
+        <AdminPageHeader
+          eyebrow="User management"
+          title="Quản lý người dùng"
+          description="Theo dõi tài khoản, phân quyền, trạng thái hoạt động và xử lý các tài khoản đã bị xóa mềm."
+          icon={Users}
+          tone="slate"
+          meta={
+            <span className="inline-flex rounded-full bg-slate-500/10 px-2.5 py-1 text-xs font-medium text-slate-700">
+              Total users: {meta?.total ?? 0}
+            </span>
+          }
+          actions={
+            <Button
+              type="button"
+              variant="outline"
+              className="cursor-pointer"
+              onClick={() => usersQuery.refetch()}
+            >
+              <RefreshCcw className="mr-2 size-4" />
+              Refresh
+            </Button>
+          }
+        />
       </section>
 
       <AdminUserFilters
@@ -224,6 +224,7 @@ export function AdminUsersPage() {
           <div className="flex gap-2">
             <Button
               variant="outline"
+              className="cursor-pointer disabled:cursor-not-allowed"
               disabled={page <= 1}
               onClick={() => setPage((current) => Math.max(1, current - 1))}
             >
@@ -232,6 +233,7 @@ export function AdminUsersPage() {
 
             <Button
               variant="outline"
+              className="cursor-pointer disabled:cursor-not-allowed"
               disabled={page >= meta.totalPages}
               onClick={() =>
                 setPage((current) => Math.min(meta.totalPages, current + 1))

@@ -191,7 +191,6 @@ export function AdminDashboardPage() {
   return (
     <div className="space-y-6">
       <section className="relative overflow-hidden rounded-3xl border bg-card p-5 shadow-sm sm:p-6">
-        <div className="pointer-events-none absolute -right-20 -top-24 size-56 rounded-full bg-primary/10 blur-3xl" />
         <AdminPageHeader
           eyebrow="Admin dashboard"
           title="Tổng quan hệ thống"

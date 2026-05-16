@@ -201,33 +201,24 @@ export function AdminQuizzesPage() {
   return (
     <div className="space-y-6">
       <section className="relative overflow-hidden rounded-3xl border bg-card p-5 shadow-sm sm:p-6">
-        <div className="pointer-events-none absolute -right-20 -top-24 size-56 rounded-full bg-primary/10 blur-3xl" />
-
-        <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <AdminPageHeader
-            eyebrow="Admin dashboard"
-            title="Tổng quan hệ thống"
-            description="Theo dõi nhanh người dùng, quiz, câu hỏi, lượt làm bài và các dấu hiệu bất thường trong Quizmaster."
-            icon={BarChart3}
-            tone="blue"
-            actions={
-              <Button
-                type="button"
-                variant="outline"
-                className="cursor-pointer"
-                onClick={() => quizzesQuery.refetch()}
-              >
-                <RefreshCcw className="mr-2 size-4" />
-                Làm mới dữ liệu
-              </Button>
-            }
-          />
-
-          <div className="rounded-2xl border bg-background/80 px-4 py-3 shadow-sm">
-            <p className="text-xs text-muted-foreground">Total quizzes</p>
-            <p className="mt-1 text-2xl font-semibold">{meta?.total ?? 0}</p>
-          </div>
-        </div>
+        <AdminPageHeader
+          eyebrow="Admin dashboard"
+          title="Tổng quan hệ thống"
+          description="Theo dõi nhanh người dùng, quiz, câu hỏi, lượt làm bài và các dấu hiệu bất thường trong Quizmaster."
+          icon={BarChart3}
+          tone="blue"
+          actions={
+            <Button
+              type="button"
+              variant="outline"
+              className="cursor-pointer"
+              onClick={() => quizzesQuery.refetch()}
+            >
+              <RefreshCcw className="mr-2 size-4" />
+              Làm mới dữ liệu
+            </Button>
+          }
+        />
       </section>
 
       <AdminQuizFormPanel
@@ -290,6 +281,7 @@ export function AdminQuizzesPage() {
           <div className="flex gap-2">
             <Button
               variant="outline"
+              className="cursor-pointer disabled:cursor-not-allowed"
               disabled={page <= 1}
               onClick={() => setPage((current) => Math.max(1, current - 1))}
             >
@@ -298,6 +290,7 @@ export function AdminQuizzesPage() {
 
             <Button
               variant="outline"
+              className="cursor-pointer disabled:cursor-not-allowed"
               disabled={page >= meta.totalPages}
               onClick={() =>
                 setPage((current) => Math.min(meta.totalPages, current + 1))
