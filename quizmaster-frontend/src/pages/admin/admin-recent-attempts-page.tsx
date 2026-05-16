@@ -128,9 +128,19 @@ export function AdminRecentAttemptsPage() {
 
       <AdminRecentAttemptsFilters
         status={status}
+        quizId={quizId}
+        userId={userId}
         from={from}
         to={to}
         onStatusChange={handleStatusChange}
+        onQuizIdChange={(value) => {
+          setQuizId(value);
+          resetPage();
+        }}
+        onUserIdChange={(value) => {
+          setUserId(value);
+          resetPage();
+        }}
         onFromChange={handleFromChange}
         onToChange={handleToChange}
         onClear={handleClearFilters}
@@ -153,6 +163,7 @@ export function AdminRecentAttemptsPage() {
           <div className="flex gap-2">
             <Button
               variant="outline"
+              className="cursor-pointer disabled:cursor-not-allowed"
               disabled={page <= 1}
               onClick={() => setPage((current) => Math.max(1, current - 1))}
             >
@@ -161,6 +172,7 @@ export function AdminRecentAttemptsPage() {
 
             <Button
               variant="outline"
+              className="cursor-pointer disabled:cursor-not-allowed"
               disabled={page >= meta.totalPages}
               onClick={() =>
                 setPage((current) => Math.min(meta.totalPages, current + 1))
