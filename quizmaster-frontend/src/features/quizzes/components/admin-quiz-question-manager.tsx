@@ -160,8 +160,11 @@ export function AdminQuizQuestionManager({
 
   return (
     <Card className="overflow-hidden rounded-3xl shadow-sm">
-      <CardHeader className="border-b bg-gradient-to-br from-violet-500/10 via-background to-blue-500/10">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <CardHeader className="relative overflow-hidden border-b bg-violet-50/80">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-violet-500/20 via-blue-500/10 to-sky-500/20" />
+        <div className="pointer-events-none absolute -right-10 -top-10 size-36 rounded-full bg-violet-500/20 blur-3xl" />
+
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <CardTitle>Quản lý câu hỏi trong quiz</CardTitle>
             <CardDescription className="mt-2">
