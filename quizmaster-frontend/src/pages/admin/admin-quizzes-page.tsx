@@ -1,4 +1,12 @@
-import { AlertCircle, BarChart3, RefreshCcw } from "lucide-react";
+import {
+  AlertCircle,
+  BarChart3,
+  RefreshCcw,
+  CheckCircle2,
+  Layers3,
+  FilePenLine,
+  Trash2,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { getApiErrorMessage } from "@/lib/axios";
@@ -40,6 +48,71 @@ function QuizzesLoading() {
   );
 }
 
+type QuizSummaryCardProps = {
+  label: string;
+  value: number;
+  description: string;
+  icon: React.ElementType;
+  tone: "violet" | "emerald" | "amber" | "rose";
+};
+
+const summaryToneClasses: Record<
+  QuizSummaryCardProps["tone"],
+  {
+    icon: string;
+    value: string;
+  }
+> = {
+  violet: {
+    icon: "bg-violet-500/10 text-violet-600",
+    value: "text-violet-700",
+  },
+  emerald: {
+    icon: "bg-emerald-500/10 text-emerald-600",
+    value: "text-emerald-700",
+  },
+  amber: {
+    icon: "bg-amber-500/10 text-amber-600",
+    value: "text-amber-700",
+  },
+  rose: {
+    icon: "bg-rose-500/10 text-rose-600",
+    value: "text-rose-700",
+  },
+};
+
+function QuizSummaryCard({
+  label,
+  value,
+  description,
+  icon: Icon,
+  tone,
+}: QuizSummaryCardProps) {
+  const styles = summaryToneClasses[tone];
+
+  return (
+    <Card className="overflow-hidden transition hover:-translate-y-0.5 hover:shadow-md">
+      <CardContent className="flex items-start gap-4 p-4">
+        <span
+          className={`flex size-11 shrink-0 items-center justify-center rounded-2xl ${styles.icon}`}
+        >
+          <Icon className="size-5" />
+        </span>
+
+        <div className="min-w-0">
+          <p className="text-sm text-muted-foreground">{label}</p>
+          <p className={`mt-1 text-2xl font-semibold ${styles.value}`}>
+            {value}
+          </p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">
+            {description}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function formatDateTime(value?: string | null) {
   if (!value) return "—";
 
@@ -76,6 +149,12 @@ export function AdminQuizzesPage() {
   const quizzes = quizzesQuery.data?.items ?? [];
   const meta = quizzesQuery.data?.meta;
   const categories = categoriesQuery.data ?? [];
+
+  const publishedCount = quizzes.filter((quiz) => quiz.isPublished).length;
+  const draftCount = quizzes.filter((quiz) => quiz.status === "DRAFT").length;
+  const deletedCount = quizzes.filter(
+    (quiz) => quiz.status === "DELETED",
+  ).length;
 
   const isMutating =
     createQuizMutation.isPending ||
@@ -219,6 +298,39 @@ export function AdminQuizzesPage() {
             </Button>
           }
         />
+        <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <QuizSummaryCard
+            label="Total in current view"
+            value={quizzes.length}
+            description={`Showing ${quizzes.length} of ${meta?.total ?? 0} quizzes.`}
+            icon={Layers3}
+            tone="violet"
+          />
+
+          <QuizSummaryCard
+            label="Published"
+            value={publishedCount}
+            description="Quizzes currently visible to users."
+            icon={CheckCircle2}
+            tone="emerald"
+          />
+
+          <QuizSummaryCard
+            label="Draft"
+            value={draftCount}
+            description="Quizzes still being prepared."
+            icon={FilePenLine}
+            tone="amber"
+          />
+
+          <QuizSummaryCard
+            label="Deleted"
+            value={deletedCount}
+            description="Soft-deleted quizzes in this view."
+            icon={Trash2}
+            tone="rose"
+          />
+        </div>
       </section>
 
       <AdminQuizFormPanel
