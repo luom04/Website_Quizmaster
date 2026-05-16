@@ -1,4 +1,12 @@
-import { AlertCircle, FileQuestion, RefreshCcw } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  FileQuestion,
+  Layers3,
+  ListChecks,
+  RefreshCcw,
+  Trash2,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -25,6 +33,7 @@ import type {
   Question,
   QuestionType,
 } from "@/types/question";
+import { Card, CardContent } from "@/components/ui/card";
 
 function QuestionsLoading() {
   return (
@@ -34,6 +43,71 @@ function QuestionsLoading() {
       <Skeleton className="h-20 rounded-3xl" />
       <Skeleton className="h-96 rounded-3xl" />
     </div>
+  );
+}
+
+type QuestionSummaryCardProps = {
+  label: string;
+  value: number;
+  description: string;
+  icon: React.ElementType;
+  tone: "emerald" | "blue" | "violet" | "rose";
+};
+
+const questionSummaryToneClasses: Record<
+  QuestionSummaryCardProps["tone"],
+  {
+    icon: string;
+    value: string;
+  }
+> = {
+  emerald: {
+    icon: "bg-emerald-500/10 text-emerald-600",
+    value: "text-emerald-700",
+  },
+  blue: {
+    icon: "bg-blue-500/10 text-blue-600",
+    value: "text-blue-700",
+  },
+  violet: {
+    icon: "bg-violet-500/10 text-violet-600",
+    value: "text-violet-700",
+  },
+  rose: {
+    icon: "bg-rose-500/10 text-rose-600",
+    value: "text-rose-700",
+  },
+};
+
+function QuestionSummaryCard({
+  label,
+  value,
+  description,
+  icon: Icon,
+  tone,
+}: QuestionSummaryCardProps) {
+  const styles = questionSummaryToneClasses[tone];
+
+  return (
+    <Card className="overflow-hidden transition hover:-translate-y-0.5 hover:shadow-md">
+      <CardContent className="flex items-start gap-4 p-4">
+        <span
+          className={`flex size-11 shrink-0 items-center justify-center rounded-2xl ${styles.icon}`}
+        >
+          <Icon className="size-5" />
+        </span>
+
+        <div className="min-w-0">
+          <p className="text-sm text-muted-foreground">{label}</p>
+          <p className={`mt-1 text-2xl font-semibold ${styles.value}`}>
+            {value}
+          </p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">
+            {description}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -69,6 +143,17 @@ export function AdminQuestionsPage() {
   const categories = categoriesQuery.data ?? [];
   const questions = questionsQuery.data?.items ?? [];
   const meta = questionsQuery.data?.meta;
+  const singleChoiceCount = questions.filter(
+    (question) => question.type === "single",
+  ).length;
+
+  const multipleChoiceCount = questions.filter(
+    (question) => question.type === "multiple",
+  ).length;
+
+  const deletedCount = questions.filter(
+    (question) => question.deletedAt,
+  ).length;
 
   const isInitialLoading = questionsQuery.isLoading && !questionsQuery.data;
 
@@ -232,6 +317,39 @@ export function AdminQuestionsPage() {
             </Button>
           }
         />
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 mt-3">
+          <QuestionSummaryCard
+            label="Total in current view"
+            value={questions.length}
+            description={`Showing ${questions.length} of ${meta?.total ?? 0} questions.`}
+            icon={Layers3}
+            tone="emerald"
+          />
+
+          <QuestionSummaryCard
+            label="Single choice"
+            value={singleChoiceCount}
+            description="Questions with exactly one correct answer."
+            icon={CheckCircle2}
+            tone="blue"
+          />
+
+          <QuestionSummaryCard
+            label="Multiple choice"
+            value={multipleChoiceCount}
+            description="Questions that may contain multiple correct answers."
+            icon={ListChecks}
+            tone="violet"
+          />
+
+          <QuestionSummaryCard
+            label="Deleted"
+            value={deletedCount}
+            description="Soft-deleted questions in this view."
+            icon={Trash2}
+            tone="rose"
+          />
+        </div>
       </section>
 
       <AdminQuestionFormPanel

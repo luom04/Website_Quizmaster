@@ -302,7 +302,7 @@ export function AdminQuizzesPage() {
             </Button>
           }
         />
-        <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <QuizSummaryCard
             label="Total in current view"
             value={quizzes.length}
