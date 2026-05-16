@@ -95,7 +95,7 @@ export function AdminQuizFilters({
 
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <select
-              className="h-10 min-w-48 cursor-pointer rounded-md border border-input bg-background px-3 text-sm shadow-sm outline-none transition hover:bg-muted/50 focus:border-ring focus:ring-2 focus:ring-ring/20"
+              className="h-10 min-w-48 cursor-pointer rounded-md border border-input bg-background px-3 text-sm shadow-sm outline-none qm-hover-surface focus:border-ring focus:ring-2 focus:ring-ring/20"
               value={status}
               onChange={(event) =>
                 onStatusChange(event.target.value as "" | QuizStatus)

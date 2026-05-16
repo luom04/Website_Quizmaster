@@ -278,10 +278,13 @@ export function AdminQuestionFormPanel({
   }
 
   return (
-    <Card className="overflow-hidden rounded-3xl shadow-sm">
-      <CardHeader className="relative overflow-hidden border-b bg-emerald-50/80">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-emerald-500/20 via-teal-500/10 to-sky-500/20" />
-        <div className="pointer-events-none absolute -right-10 -top-10 size-36 rounded-full bg-emerald-500/20 blur-3xl" />
+    <Card className="gap-0 overflow-hidden rounded-3xl py-0 shadow-sm">
+      <CardHeader className="relative overflow-hidden rounded-t-3xl border-b border-emerald-200/60 px-4 py-5 sm:px-6 sm:py-6 [.border-b]:pb-5 sm:[.border-b]:pb-6">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-emerald-100 via-emerald-50 to-teal-50" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_120%_at_100%_-30%,rgba(16,185,129,0.28),transparent_55%)]" />
+        <div className="pointer-events-none absolute -left-12 -top-12 size-44 rounded-full bg-emerald-400/25 blur-3xl" />
+        <div className="pointer-events-none absolute -right-6 top-0 size-40 rounded-full bg-teal-400/20 blur-3xl" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent" />
 
         <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
@@ -341,7 +344,7 @@ export function AdminQuestionFormPanel({
               value={content}
               disabled={isSubmitting}
               rows={4}
-              className="mt-2 min-h-28 w-full rounded-2xl border border-input bg-background px-3 py-3 text-sm outline-none transition placeholder:text-muted-foreground hover:bg-muted/30 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="mt-2 min-h-28 w-full rounded-2xl border border-input bg-background px-3 py-3 text-sm outline-none qm-hover-surface placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="Nhập nội dung câu hỏi..."
               onChange={(event) => setContent(event.target.value)}
             />
@@ -365,7 +368,7 @@ export function AdminQuestionFormPanel({
                 <select
                   value={categoryId}
                   disabled={isSubmitting}
-                  className="mt-2 h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none transition hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="mt-2 h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none qm-hover-surface focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
                   onChange={(event) => setCategoryId(event.target.value)}
                 >
                   <option value="">General</option>
@@ -390,7 +393,7 @@ export function AdminQuestionFormPanel({
                 <select
                   value={type}
                   disabled={isSubmitting}
-                  className="mt-2 h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none transition hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="mt-2 h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none qm-hover-surface focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
                   onChange={(event) =>
                     handleTypeChange(event.target.value as QuestionType)
                   }
@@ -450,10 +453,10 @@ export function AdminQuestionFormPanel({
                 return (
                   <div
                     key={index}
-                    className="rounded-2xl border bg-muted/20 p-4 transition hover:bg-muted/40"
+                    className="rounded-2xl border bg-muted/20 p-4 qm-row-hover"
                   >
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-start">
-                      <label className="flex cursor-pointer items-center gap-2 rounded-xl border bg-background px-3 py-2 text-sm transition hover:bg-muted/50 lg:w-40">
+                      <label className="flex cursor-pointer items-center gap-2 rounded-xl border bg-background px-3 py-2 text-sm qm-hover-surface lg:w-40">
                         <input
                           type={inputType}
                           name="correct-answer"

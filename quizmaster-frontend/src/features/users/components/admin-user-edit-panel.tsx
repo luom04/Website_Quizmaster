@@ -155,7 +155,7 @@ export function AdminUserEditPanel({
                 <select
                   value={role}
                   disabled={isSubmitting}
-                  className="mt-2 h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 text-sm outline-none transition hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="mt-2 h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 text-sm outline-none qm-hover-surface focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
                   onChange={(event) => setRole(event.target.value as UserRole)}
                 >
                   <option value="user">User</option>
@@ -168,7 +168,7 @@ export function AdminUserEditPanel({
                 <select
                   value={isActive ? "active" : "inactive"}
                   disabled={isSubmitting}
-                  className="mt-2 h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 text-sm outline-none transition hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="mt-2 h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 text-sm outline-none qm-hover-surface focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
                   onChange={(event) =>
                     setIsActive(event.target.value === "active")
                   }

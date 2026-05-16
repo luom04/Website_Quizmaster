@@ -127,7 +127,7 @@ export function AdminRecentAttemptsFilters({
         <div className="grid gap-3 xl:grid-cols-[0.75fr_1fr_1fr_0.8fr_0.8fr]">
           <select
             value={status}
-            className="h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 text-sm outline-none transition hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+            className="h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 text-sm outline-none qm-hover-surface focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
             onChange={(event) =>
               onStatusChange(event.target.value as "" | AttemptStatus)
             }

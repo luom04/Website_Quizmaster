@@ -64,7 +64,7 @@ export function PublicLayout() {
                 return (
                   <div
                     key={item.title}
-                    className="rounded-2xl border bg-background/70 p-4 shadow-sm backdrop-blur transition duration-300 hover:-translate-y-1 hover:bg-background"
+                    className="rounded-2xl border bg-background/70 p-4 shadow-sm backdrop-blur transition duration-300 hover:-translate-y-1 hover:bg-background hover:bg-hover-surface"
                   >
                     <div className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
                       <Icon className="size-4" />

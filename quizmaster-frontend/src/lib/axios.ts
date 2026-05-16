@@ -1,6 +1,11 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 
 import { env } from "@/config/env";
+import {
+  extractApiResponseMessage,
+  getStatusFallbackMessage,
+  localizeApiErrorMessage,
+} from "@/lib/api-error-messages";
 import { useAuthStore } from "@/stores/auth.store";
 import type { ApiErrorResponse, ApiSuccessResponse } from "@/types/api";
 import type { AuthTokenData } from "@/types/auth";
@@ -111,36 +116,13 @@ export function getApiErrorMessage(
   }
 
   const status = error.response?.status;
+  const responseMessage = extractApiResponseMessage(
+    error.response?.data?.message,
+  );
 
-  switch (status) {
-    case 400:
-      return "Vui lòng kiểm tra lại thông tin đã nhập.";
-
-    case 401:
-      return fallback;
-
-    case 403:
-      return "Bạn không có quyền thực hiện thao tác này.";
-
-    case 404:
-      return "Không tìm thấy dữ liệu yêu cầu.";
-
-    case 409:
-      return "Dữ liệu đã tồn tại. Vui lòng kiểm tra lại.";
-
-    case 422:
-      return "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.";
-
-    case 429:
-      return "Bạn thao tác quá nhanh. Vui lòng thử lại sau.";
-
-    case 500:
-    case 502:
-    case 503:
-    case 504:
-      return "Hệ thống đang gặp sự cố. Vui lòng thử lại sau.";
-
-    default:
-      return fallback;
+  if (responseMessage) {
+    return localizeApiErrorMessage(responseMessage);
   }
+
+  return getStatusFallbackMessage(status, fallback);
 }

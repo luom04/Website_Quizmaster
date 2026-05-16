@@ -40,7 +40,7 @@ export function QuizListFilters({
         {search && (
           <button
             onClick={() => onSearchChange("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 transition-colors hover:bg-muted"
+            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 qm-hover-control"
           >
             <X className="size-3.5 text-muted-foreground" />
           </button>

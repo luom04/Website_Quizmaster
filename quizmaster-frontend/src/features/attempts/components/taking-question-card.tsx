@@ -93,7 +93,7 @@ export function TakingQuestionCard({
               type="button"
               variant="outline"
               className={cn(
-                "group h-auto w-full justify-start rounded-2xl border px-4 py-4 text-left font-normal transition-all hover:-translate-y-0.5 hover:bg-muted/50",
+                "group h-auto w-full justify-start rounded-2xl border px-4 py-4 text-left font-normal transition-[color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:bg-hover-surface",
                 isSelected &&
                   "border-primary bg-primary/10 text-foreground shadow-sm hover:bg-primary/15",
               )}

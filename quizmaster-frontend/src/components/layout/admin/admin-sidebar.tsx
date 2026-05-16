@@ -30,7 +30,7 @@ export function AdminSidebar() {
                   end={item.href === ROUTES.ADMIN.DASHBOARD}
                   className={({ isActive }) =>
                     cn(
-                      "group flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground cursor-pointer",
+                      "group flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-hover-surface hover:text-foreground cursor-pointer",
                       isActive &&
                         "bg-primary text-primary-foreground shadow-sm hover:bg-primary hover:text-primary-foreground",
                     )
@@ -50,7 +50,7 @@ export function AdminSidebar() {
         <div className="mt-auto space-y-3">
           <NavLink
             to={ROUTES.USER.QUIZZES}
-            className="flex cursor-pointer items-center justify-between rounded-2xl border bg-background px-4 py-3 text-sm font-medium transition hover:bg-muted"
+            className="flex cursor-pointer items-center justify-between rounded-2xl border bg-background px-4 py-3 text-sm font-medium transition hover:bg-hover-surface"
           >
             <span>View user site</span>
             <ExternalLink className="size-4 text-muted-foreground" />
