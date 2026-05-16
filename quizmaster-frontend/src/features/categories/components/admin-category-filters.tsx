@@ -78,7 +78,7 @@ export function AdminCategoryFilters({
             />
           </div>
 
-          <label className="flex h-10 cursor-pointer items-center gap-2 rounded-xl border bg-background px-3 text-sm transition hover:bg-muted/50">
+          <label className="flex h-10 cursor-pointer items-center gap-2 rounded-xl border bg-background px-3 text-sm qm-hover-surface">
             <input
               type="checkbox"
               checked={includeDeleted}

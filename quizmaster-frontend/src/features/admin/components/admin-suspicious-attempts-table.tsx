@@ -140,7 +140,7 @@ export function AdminSuspiciousAttemptsTable({
             {attempts.map((attempt) => (
               <tr
                 key={attempt.attemptId}
-                className="border-t transition hover:bg-muted/40"
+                className="border-t qm-row-hover"
               >
                 <td className="max-w-[260px] px-4 py-4 align-top">
                   <div className="flex items-center gap-3">

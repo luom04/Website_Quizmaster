@@ -184,10 +184,13 @@ export function AdminQuizFormPanel({
   }
 
   return (
-    <Card className="overflow-hidden rounded-3xl shadow-sm">
-      <CardHeader className="relative overflow-hidden border-b bg-violet-50/80">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-violet-500/20 via-blue-500/10 to-sky-500/20" />
-        <div className="pointer-events-none absolute -right-10 -top-10 size-36 rounded-full bg-violet-500/20 blur-3xl" />
+    <Card className="gap-0 overflow-hidden rounded-3xl py-0 shadow-sm">
+      <CardHeader className="relative overflow-hidden rounded-t-3xl border-b border-violet-200/60 px-4 py-5 sm:px-6 sm:py-6 [.border-b]:pb-5 sm:[.border-b]:pb-6">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-violet-100 via-violet-50 to-sky-50" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_120%_at_100%_-30%,rgba(139,92,246,0.28),transparent_55%)]" />
+        <div className="pointer-events-none absolute -left-12 -top-12 size-44 rounded-full bg-violet-400/25 blur-3xl" />
+        <div className="pointer-events-none absolute -right-6 top-0 size-40 rounded-full bg-sky-400/20 blur-3xl" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-violet-400/50 to-transparent" />
         <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <CardTitle>
@@ -260,7 +263,7 @@ export function AdminQuizFormPanel({
                 <select
                   value={categoryId}
                   disabled={isSubmitting}
-                  className="mt-2 h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none transition hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="mt-2 h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none qm-hover-surface focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
                   onChange={(event) => setCategoryId(event.target.value)}
                 >
                   <option value="">General</option>
@@ -280,7 +283,7 @@ export function AdminQuizFormPanel({
                 value={description}
                 disabled={isSubmitting}
                 rows={3}
-                className="mt-2 min-h-24 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none transition placeholder:text-muted-foreground hover:bg-muted/30 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
+                className="mt-2 min-h-24 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none qm-hover-surface placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
                 placeholder="Mô tả ngắn về nội dung, đối tượng và mục tiêu của quiz..."
                 onChange={(event) => setDescription(event.target.value)}
               />
@@ -298,7 +301,7 @@ export function AdminQuizFormPanel({
                 <select
                   value={accessMode}
                   disabled={isSubmitting}
-                  className="mt-2 h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none transition hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="mt-2 h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none qm-hover-surface focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
                   onChange={(event) =>
                     setAccessMode(event.target.value as QuizAccessMode)
                   }
@@ -391,7 +394,7 @@ export function AdminQuizFormPanel({
                 <select
                   value={isPublished ? "true" : "false"}
                   disabled={isSubmitting}
-                  className="mt-2 h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none transition hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="mt-2 h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none qm-hover-surface focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
                   onChange={(event) =>
                     setIsPublished(event.target.value === "true")
                   }
@@ -439,7 +442,7 @@ export function AdminQuizFormPanel({
             description="Điều chỉnh cách hiển thị đáp án và thứ tự câu hỏi/câu trả lời cho user."
           >
             <div className="grid gap-3 sm:grid-cols-3">
-              <label className="flex cursor-pointer items-center gap-3 rounded-2xl border bg-muted/30 p-4 text-sm transition hover:bg-muted/50 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60">
+              <label className="flex cursor-pointer items-center gap-3 rounded-2xl border bg-muted/30 p-4 text-sm qm-hover-surface has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60">
                 <input
                   type="checkbox"
                   checked={showAnswer}
@@ -453,7 +456,7 @@ export function AdminQuizFormPanel({
                 </span>
               </label>
 
-              <label className="flex cursor-pointer items-center gap-3 rounded-2xl border bg-muted/30 p-4 text-sm transition hover:bg-muted/50 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60">
+              <label className="flex cursor-pointer items-center gap-3 rounded-2xl border bg-muted/30 p-4 text-sm qm-hover-surface has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60">
                 <input
                   type="checkbox"
                   checked={shuffleQuestions}
@@ -466,7 +469,7 @@ export function AdminQuizFormPanel({
                 <span>Shuffle questions</span>
               </label>
 
-              <label className="flex cursor-pointer items-center gap-3 rounded-2xl border bg-muted/30 p-4 text-sm transition hover:bg-muted/50 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60">
+              <label className="flex cursor-pointer items-center gap-3 rounded-2xl border bg-muted/30 p-4 text-sm qm-hover-surface has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60">
                 <input
                   type="checkbox"
                   checked={shuffleOptions}

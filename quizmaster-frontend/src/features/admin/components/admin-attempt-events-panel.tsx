@@ -97,10 +97,13 @@ export function AdminAttemptEventsPanel({
   }
 
   return (
-    <Card className="overflow-hidden rounded-3xl shadow-sm">
-      <CardHeader className="relative overflow-hidden border-b bg-rose-50/80">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-rose-500/20 via-orange-500/10 to-amber-500/20" />
-        <div className="pointer-events-none absolute -right-10 -top-10 size-36 rounded-full bg-rose-500/20 blur-3xl" />
+    <Card className="gap-0 overflow-hidden rounded-3xl py-0 shadow-sm">
+      <CardHeader className="relative overflow-hidden rounded-t-3xl border-b border-rose-200/60 px-4 py-5 sm:px-6 sm:py-6 [.border-b]:pb-5 sm:[.border-b]:pb-6">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-rose-100 via-rose-50 to-orange-50" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_120%_at_100%_-30%,rgba(244,63,94,0.28),transparent_55%)]" />
+        <div className="pointer-events-none absolute -left-12 -top-12 size-44 rounded-full bg-rose-400/25 blur-3xl" />
+        <div className="pointer-events-none absolute -right-6 top-0 size-40 rounded-full bg-orange-400/20 blur-3xl" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-rose-400/50 to-transparent" />
 
         <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
@@ -184,7 +187,7 @@ export function AdminAttemptEventsPanel({
             <Filter className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <select
               value={eventType}
-              className="h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 pl-9 text-sm outline-none transition hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+              className="h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 pl-9 text-sm outline-none qm-hover-surface focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               onChange={(event) =>
                 handleEventTypeChange(event.target.value as "" | QuizEventType)
               }
@@ -200,7 +203,7 @@ export function AdminAttemptEventsPanel({
 
           <select
             value={sort}
-            className="h-10 cursor-pointer rounded-xl border border-input bg-background px-3 text-sm outline-none transition hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+            className="h-10 cursor-pointer rounded-xl border border-input bg-background px-3 text-sm outline-none qm-hover-surface focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
             onChange={(event) =>
               handleSortChange(event.target.value as "asc" | "desc")
             }

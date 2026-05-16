@@ -99,7 +99,7 @@ export function AdminQuestionTable({
               return (
                 <tr
                   key={question.id}
-                  className="border-t transition hover:bg-muted/40"
+                  className="border-t qm-row-hover"
                 >
                   <td className="max-w-[360px] px-4 py-4 align-top">
                     <div className="line-clamp-3 font-medium leading-6">

@@ -1,5 +1,4 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
 import {
   AlertCircle,
   ArrowLeft,
@@ -43,17 +42,6 @@ function getQuizDetailPath(quizId: string) {
 
 function getTakingQuizPath(attemptId: string) {
   return ROUTES.USER.TAKING_QUIZ.replace(":attemptId", attemptId);
-}
-
-function getPasswordErrorMessage(error: unknown) {
-  if (axios.isAxiosError(error) && error.response?.status === 403) {
-    return "Mật khẩu quiz không đúng.";
-  }
-
-  return getApiErrorMessage(
-    error,
-    "Không thể xác thực mật khẩu. Vui lòng thử lại.",
-  );
 }
 
 function QuizPasswordLoading() {
@@ -116,7 +104,9 @@ export function QuizPasswordPage() {
 
       navigate(getTakingQuizPath(attempt.id));
     } catch (error) {
-      toast.error(getPasswordErrorMessage(error));
+      toast.error(
+        getApiErrorMessage(error, "Mật khẩu quiz không đúng. Vui lòng thử lại."),
+      );
     }
   }
 

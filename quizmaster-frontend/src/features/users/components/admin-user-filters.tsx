@@ -132,7 +132,7 @@ export function AdminUserFilters({
             <ShieldCheck className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <select
               value={role}
-              className="h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 pl-9 text-sm outline-none transition hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+              className="h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 pl-9 text-sm outline-none qm-hover-surface focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               onChange={(event) =>
                 onRoleChange(event.target.value as "" | UserRole)
               }
@@ -149,7 +149,7 @@ export function AdminUserFilters({
             <UserCheck className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <select
               value={activeStatus}
-              className="h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 pl-9 text-sm outline-none transition hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+              className="h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 pl-9 text-sm outline-none qm-hover-surface focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               onChange={(event) =>
                 onActiveStatusChange(
                   event.target.value as "" | "active" | "inactive",
@@ -164,7 +164,7 @@ export function AdminUserFilters({
             </select>
           </div>
 
-          <label className="flex h-10 cursor-pointer items-center gap-2 rounded-xl border bg-background px-3 text-sm transition hover:bg-muted/50">
+          <label className="flex h-10 cursor-pointer items-center gap-2 rounded-xl border bg-background px-3 text-sm qm-hover-surface">
             <input
               type="checkbox"
               checked={includeDeleted}

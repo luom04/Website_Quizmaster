@@ -52,10 +52,13 @@ export function AdminCategoryFormPanel({
   }
 
   return (
-    <Card className="overflow-hidden rounded-3xl shadow-sm">
-      <CardHeader className="relative overflow-hidden border-b bg-amber-50/80">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-amber-500/20 via-orange-500/10 to-yellow-500/20" />
-        <div className="pointer-events-none absolute -right-10 -top-10 size-36 rounded-full bg-amber-500/20 blur-3xl" />
+    <Card className="gap-0 overflow-hidden rounded-3xl py-0 shadow-sm">
+      <CardHeader className="relative overflow-hidden rounded-t-3xl border-b border-amber-200/60 px-4 py-5 sm:px-6 sm:py-6 [.border-b]:pb-5 sm:[.border-b]:pb-6">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-amber-100 via-amber-50 to-orange-50" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_120%_at_100%_-30%,rgba(245,158,11,0.28),transparent_55%)]" />
+        <div className="pointer-events-none absolute -left-12 -top-12 size-44 rounded-full bg-amber-400/25 blur-3xl" />
+        <div className="pointer-events-none absolute -right-6 top-0 size-40 rounded-full bg-orange-400/20 blur-3xl" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent" />
 
         <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>

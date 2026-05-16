@@ -117,7 +117,7 @@ export function QuizCard({ quiz }: QuizCardProps) {
 
       {/* Stats Grid */}
       <div className="mt-5 grid grid-cols-3 gap-2">
-        <div className="rounded-2xl border border-border/50 bg-muted/30 p-3 text-center transition-colors group-hover:bg-muted/50">
+        <div className="rounded-2xl border border-border/50 bg-muted/30 p-3 text-center transition-colors group-hover:bg-hover-surface">
           <Clock3 className="mx-auto size-4 text-muted-foreground" />
           <p className="mt-2 text-sm font-bold">{quiz.durationMinutes}m</p>
           <p className="text-[10px] uppercase font-medium text-muted-foreground">
@@ -125,7 +125,7 @@ export function QuizCard({ quiz }: QuizCardProps) {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-border/50 bg-muted/30 p-3 text-center transition-colors group-hover:bg-muted/50">
+        <div className="rounded-2xl border border-border/50 bg-muted/30 p-3 text-center transition-colors group-hover:bg-hover-surface">
           <BookOpenCheck className="mx-auto size-4 text-muted-foreground" />
           <p className="mt-2 text-sm font-bold">{questionCount}</p>
           <p className="text-[10px] uppercase font-medium text-muted-foreground">
@@ -133,7 +133,7 @@ export function QuizCard({ quiz }: QuizCardProps) {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-border/50 bg-muted/30 p-3 text-center transition-colors group-hover:bg-muted/50">
+        <div className="rounded-2xl border border-border/50 bg-muted/30 p-3 text-center transition-colors group-hover:bg-hover-surface">
           <RotateCcw className="mx-auto size-4 text-muted-foreground" />
           <p className="mt-2 text-sm font-bold">{quiz.maxAttempts}</p>
           <p className="text-[10px] uppercase font-medium text-muted-foreground">

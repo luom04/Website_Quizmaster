@@ -87,7 +87,10 @@ export function QuizDetailPage() {
       navigate(getTakingQuizPath(attempt.id));
     } catch (error) {
       toast.error(
-        getApiErrorMessage(error, "Không thể bắt đầu quiz. Vui lòng thử lại."),
+        getApiErrorMessage(
+          error,
+          "Không thể bắt đầu quiz. Kiểm tra trạng thái, thời gian và số lượt làm bài.",
+        ),
       );
     }
   }

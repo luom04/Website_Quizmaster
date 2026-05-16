@@ -159,10 +159,13 @@ export function AdminQuizQuestionManager({
   }
 
   return (
-    <Card className="overflow-hidden rounded-3xl shadow-sm">
-      <CardHeader className="relative overflow-hidden border-b bg-violet-50/80">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-violet-500/20 via-blue-500/10 to-sky-500/20" />
-        <div className="pointer-events-none absolute -right-10 -top-10 size-36 rounded-full bg-violet-500/20 blur-3xl" />
+    <Card className="gap-0 overflow-hidden rounded-3xl py-0 shadow-sm">
+      <CardHeader className="relative overflow-hidden rounded-t-3xl border-b border-violet-200/60 px-4 py-5 sm:px-6 sm:py-6 [.border-b]:pb-5 sm:[.border-b]:pb-6">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-violet-100 via-violet-50 to-sky-50" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_120%_at_100%_-30%,rgba(139,92,246,0.28),transparent_55%)]" />
+        <div className="pointer-events-none absolute -left-12 -top-12 size-44 rounded-full bg-violet-400/25 blur-3xl" />
+        <div className="pointer-events-none absolute -right-6 top-0 size-40 rounded-full bg-sky-400/20 blur-3xl" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-violet-400/50 to-transparent" />
 
         <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
@@ -395,7 +398,7 @@ export function AdminQuizQuestionManager({
                   {quizQuestions.map((item) => (
                     <tr
                       key={item.questionId}
-                      className="border-t transition hover:bg-muted/40"
+                      className="border-t qm-row-hover"
                     >
                       <td className="px-4 py-3 font-medium">
                         #{item.orderIndex}

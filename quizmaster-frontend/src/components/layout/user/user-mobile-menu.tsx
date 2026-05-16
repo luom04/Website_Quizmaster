@@ -78,7 +78,7 @@ export function UserMobileMenu({
                   className={({ isActive }) =>
                     cn(
                       "group flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-semibold transition-all",
-                      "bg-background text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+                      "bg-background text-muted-foreground hover:bg-hover-surface hover:text-foreground",
                       isActive &&
                         "border-primary/20 bg-primary/10 text-primary shadow-sm",
                     )

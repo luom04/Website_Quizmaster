@@ -111,7 +111,7 @@ export function AdminQuizTable({
               return (
                 <tr
                   key={quiz.id}
-                  className="border-t transition hover:bg-muted/40"
+                  className="border-t qm-row-hover"
                 >
                   <td className="px-4 py-3">
                     <p className="line-clamp-2 max-w-xl font-medium">

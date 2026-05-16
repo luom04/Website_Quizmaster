@@ -146,7 +146,7 @@ export function AdminQuestionFilters({
             <FolderTree className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <select
               value={categoryId}
-              className="h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 pl-9 text-sm outline-none transition hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+              className="h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 pl-9 text-sm outline-none qm-hover-surface focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               onChange={(event) => onCategoryChange(event.target.value)}
             >
               <option value="">Tất cả category</option>
@@ -163,7 +163,7 @@ export function AdminQuestionFilters({
             <ListChecks className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <select
               value={type}
-              className="h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 pl-9 text-sm outline-none transition hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+              className="h-10 w-full cursor-pointer rounded-xl border border-input bg-background px-3 pl-9 text-sm outline-none qm-hover-surface focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               onChange={(event) =>
                 onTypeChange(event.target.value as "" | QuestionType)
               }
@@ -176,7 +176,7 @@ export function AdminQuestionFilters({
             </select>
           </div>
 
-          <label className="flex h-10 cursor-pointer items-center gap-2 rounded-xl border bg-background px-3 text-sm transition hover:bg-muted/50">
+          <label className="flex h-10 cursor-pointer items-center gap-2 rounded-xl border bg-background px-3 text-sm qm-hover-surface">
             <input
               type="checkbox"
               checked={includeDeleted}

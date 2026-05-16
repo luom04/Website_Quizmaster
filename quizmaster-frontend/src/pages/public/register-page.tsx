@@ -1,7 +1,6 @@
 import { useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
 import {
   AlertTriangle,
   ArrowRight,
@@ -30,17 +29,6 @@ import {
 import { AuthCard } from "@/features/auth/components/auth-card";
 
 import { getApiErrorMessage } from "@/lib/axios";
-
-function getRegisterErrorMessage(error: unknown) {
-  if (axios.isAxiosError(error) && error.response?.status === 409) {
-    return "Email này đã được sử dụng.";
-  }
-
-  return getApiErrorMessage(
-    error,
-    "Không thể tạo tài khoản. Vui lòng kiểm tra lại thông tin.",
-  );
-}
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -72,7 +60,12 @@ export function RegisterPage() {
       setRecoveryCode(data.recoveryCode);
       toast.success("Tạo tài khoản thành công. Hãy lưu mã khôi phục.");
     } catch (error) {
-      toast.error(getRegisterErrorMessage(error));
+      toast.error(
+        getApiErrorMessage(
+          error,
+          "Không thể tạo tài khoản. Vui lòng kiểm tra lại thông tin.",
+        ),
+      );
     }
   }
 

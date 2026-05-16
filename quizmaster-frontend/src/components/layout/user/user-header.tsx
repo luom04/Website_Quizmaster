@@ -71,8 +71,8 @@ export function UserHeader() {
               to={item.href}
               className={({ isActive }) =>
                 cn(
-                  "inline-flex h-8 items-center rounded-xl px-3 text-sm font-semibold transition-all",
-                  "text-muted-foreground hover:bg-background/80 hover:text-foreground",
+                  "inline-flex h-8 items-center rounded-xl px-3 text-sm font-semibold transition-[color,box-shadow,transform,opacity]",
+                  "text-muted-foreground hover:bg-hover-surface hover:text-foreground",
                   isActive &&
                     "bg-background text-primary shadow-sm ring-1 ring-border",
                 )

@@ -39,6 +39,10 @@
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
+  --color-hover-surface: var(--hover-surface);
+  --color-hover-row: var(--hover-row);
+  --color-hover-control: var(--hover-control);
+  --color-hover-active: var(--hover-active);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -81,6 +85,10 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --hover-surface: oklch(0.965 0 0);
+  --hover-row: oklch(0.955 0 0);
+  --hover-control: oklch(0.95 0 0);
+  --hover-active: oklch(0.94 0 0);
 }
 
 .dark {
@@ -94,9 +102,9 @@
   --primary-foreground: oklch(0.205 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
+  --muted: oklch(0.22 0 0);
   --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
+  --accent: oklch(0.22 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
@@ -115,6 +123,10 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  --hover-surface: oklch(0.185 0 0);
+  --hover-row: oklch(0.175 0 0);
+  --hover-control: oklch(0.195 0 0);
+  --hover-active: oklch(0.205 0 0);
 }
 
 @layer base {
@@ -200,6 +212,14 @@
     box-shadow:
       0 1px 2px color-mix(in oklch, var(--foreground) 8%, transparent),
       0 12px 32px color-mix(in oklch, var(--foreground) 5%, transparent);
+  }
+
+  .dark .qm-soft-card {
+    background: linear-gradient(
+      180deg,
+      color-mix(in oklch, var(--card) 94%, var(--foreground) 6%),
+      var(--card)
+    );
   }
 
   .qm-soft-card-hover {
@@ -292,6 +312,37 @@
 
   .qm-text-balance {
     text-wrap: balance;
+  }
+
+  /* Theme-aware hovers (never mix white foreground into dark surfaces). */
+  .qm-hover-surface {
+    transition-property: color, border-color, box-shadow, transform, opacity;
+    transition-duration: 150ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .qm-hover-surface:hover {
+    background-color: var(--hover-surface);
+  }
+
+  .qm-hover-row {
+    transition-property: color, border-color, transform, opacity;
+    transition-duration: 150ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .qm-hover-row:hover {
+    background-color: var(--hover-row);
+  }
+
+  .qm-hover-control {
+    transition-property: color, border-color, box-shadow, transform, opacity;
+    transition-duration: 150ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .qm-hover-control:hover {
+    background-color: var(--hover-control);
   }
 }
 
